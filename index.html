@@ -34,7 +34,10 @@
   .sidebar .foot{padding:14px 20px;font-size:11px;color:#7d9fc9;border-top:1px solid rgba(255,255,255,.12)}
 
   .main{margin-left:var(--sidebar-w);min-height:100vh}
-  .page{display:block;padding:34px 44px 80px;max-width:1200px;scroll-margin-top:56px}
+  .page{display:none;padding:34px 44px 80px;max-width:1200px;scroll-margin-top:56px}
+  .page:target,.page.active{display:block}
+  #page-intro{display:block}
+  .page:target ~ #page-intro,.page.active ~ #page-intro{display:none}
 
   .doc-header{background:linear-gradient(135deg,#0b2545,#0e5fd8);color:#fff;border-radius:14px;padding:30px 34px;margin-bottom:26px;box-shadow:0 8px 24px rgba(11,37,69,.25)}
   .doc-header .tag{display:inline-block;font-size:12px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);padding:3px 12px;border-radius:999px;margin-bottom:12px}
@@ -169,34 +172,6 @@
 </aside>
 
 <main class="main">
-
-  <!-- ===== 编制说明与摘要 ===== -->
-  <div class="page active" id="page-intro">
-    <div class="doc-header">
-      <span class="tag">前置部分</span>
-      <h2>编制说明与摘要</h2>
-    </div>
-    <div class="lead">
-      <b>编制目的：</b>本汇编系统归集国家、广东省、深圳市近零能耗/零碳相关政策与技术标准，梳理民航建筑绿色低碳专项标准，总结政策标准体系脉络，按"单体—区域"尺度推荐机场建筑认证体系与技术指标要求，为《深圳机场近零能耗建筑建设项目研究报告》与《试点项目名录及分级建设低碳技术明细表》编制提供统一的引用来源。
-    </div>
-    <div class="section" style="margin-top:22px">
-      <div class="sec-head"><h3>内容结构（全文四章）</h3></div>
-      <div class="sec-body">
-        <p>第一章 术语和定义：按"能耗与节能、碳排放"两类归纳全书出现的专业术语，定义直接摘自相关标准规范术语条文并注明来源，便于非专业人员对照阅读。</p>
-        <p>第二章 政策篇：2.1 政策顶层设计、2.2 各部门建筑领域配套政策、2.3 广东省及深圳市配套政策、2.4 其他城市政策、2.5 考核政策、2.6 本章小结。</p>
-        <p>第三章 技术标准篇：3.1 建筑碳排放现状、3.2 建筑节能降碳标准发展、3.3 强制性节能标准、3.4 推荐性节能标准、3.5 零碳类标准、3.6 本章小结。</p>
-        <p>第四章 民航建筑绿色低碳标准专项：4.1 民航业碳排放现状、4.2 民航绿色低碳政策及标准概述、4.3 民航绿色低碳发展政策、4.4 民航绿色低碳机场标准、4.5 本章小结。</p>
-      </div>
-    </div>
-    <div class="section">
-      <div class="sec-head"><h3>摘要要点</h3></div>
-      <div class="sec-body">
-        <p>"碳达峰、碳中和"（简称"双碳"）已成为国家战略，我国已逐步建立"1+N"碳达峰碳中和政策体系；长期实施的能耗"双控"政策已逐渐转变为碳排放"双控"政策，自2026年度起对各省区市党委、政府落实碳达峰碳中和目标进行考核。</p>
-        <p>在住房和城乡建设领域，建设超低能耗、近零能耗、零能耗建筑、零碳建筑、零碳园区等是未来的发展趋势和方向。2024年，中国工程建设标准化协会发布了《碳中和建筑评价标准》T/CECS 1555-2024和《零碳建筑测评标准（试行）》T/CABEE 080-2024；住房和城乡建设部正在组织编制《零碳建筑技术标准》和《零碳园区技术标准》等。</p>
-        <p>为响应"双碳"国家战略，中国民用航空局印发实施"十四五"系列规划及实施方案，形成中国民航绿色发展规划政策体系；绿色低碳机场标准体系和考评体系逐步建立。民航建筑作为特殊的公共建筑，须同时满足民用建筑通用标准与民航专属标准，两套标准体系呈"通用底线＋专属要求"的叠加关系。</p>
-      </div>
-    </div>
-  </div>
 
   <!-- ================= 第一章 术语和定义 ================= -->
   <div class="page" id="page-ch1">
@@ -1395,23 +1370,94 @@
     </div>
   </div>
 
+  <!-- ===== 编制说明与摘要（默认首页，置于末位以配合CSS兄弟选择器） ===== -->
+  <div class="page" id="page-intro">
+    <div class="doc-header">
+      <span class="tag">前置部分</span>
+      <h2>编制说明与摘要</h2>
+    </div>
+    <div class="lead">
+      <b>编制目的：</b>本汇编系统归集国家、广东省、深圳市近零能耗/零碳相关政策与技术标准，梳理民航建筑绿色低碳专项标准，总结政策标准体系脉络，按"单体—区域"尺度推荐机场建筑认证体系与技术指标要求，为《深圳机场近零能耗建筑建设项目研究报告》与《试点项目名录及分级建设低碳技术明细表》编制提供统一的引用来源。
+    </div>
+    <div class="section" style="margin-top:22px">
+      <div class="sec-head"><h3>内容结构（全文四章）</h3></div>
+      <div class="sec-body">
+        <p>第一章 术语和定义：按"能耗与节能、碳排放"两类归纳全书出现的专业术语，定义直接摘自相关标准规范术语条文并注明来源，便于非专业人员对照阅读。</p>
+        <p>第二章 政策篇：2.1 政策顶层设计、2.2 各部门建筑领域配套政策、2.3 广东省及深圳市配套政策、2.4 其他城市政策、2.5 考核政策、2.6 本章小结。</p>
+        <p>第三章 技术标准篇：3.1 建筑碳排放现状、3.2 建筑节能降碳标准发展、3.3 强制性节能标准、3.4 推荐性节能标准、3.5 零碳类标准、3.6 本章小结。</p>
+        <p>第四章 民航建筑绿色低碳标准专项：4.1 民航业碳排放现状、4.2 民航绿色低碳政策及标准概述、4.3 民航绿色低碳发展政策、4.4 民航绿色低碳机场标准、4.5 本章小结。</p>
+      </div>
+    </div>
+    <div class="section">
+      <div class="sec-head"><h3>摘要要点</h3></div>
+      <div class="sec-body">
+        <p>"碳达峰、碳中和"（简称"双碳"）已成为国家战略，我国已逐步建立"1+N"碳达峰碳中和政策体系；长期实施的能耗"双控"政策已逐渐转变为碳排放"双控"政策，自2026年度起对各省区市党委、政府落实碳达峰碳中和目标进行考核。</p>
+        <p>在住房和城乡建设领域，建设超低能耗、近零能耗、零能耗建筑、零碳建筑、零碳园区等是未来的发展趋势和方向。2024年，中国工程建设标准化协会发布了《碳中和建筑评价标准》T/CECS 1555-2024和《零碳建筑测评标准（试行）》T/CABEE 080-2024；住房和城乡建设部正在组织编制《零碳建筑技术标准》和《零碳园区技术标准》等。</p>
+        <p>为响应"双碳"国家战略，中国民用航空局印发实施"十四五"系列规划及实施方案，形成中国民航绿色发展规划政策体系；绿色低碳机场标准体系和考评体系逐步建立。民航建筑作为特殊的公共建筑，须同时满足民用建筑通用标准与民航专属标准，两套标准体系呈"通用底线＋专属要求"的叠加关系。</p>
+      </div>
+    </div>
+  </div>
+
 </main>
 <script>
-/* 本页所有导航/跳转均使用原生锚点(#id)，不依赖任何JS即可工作。
-   以下仅为滚动时的导航高亮装饰，异常时自动忽略。 */
+/* 章节切换由CSS :target原生完成（点目录#page-xx即显示对应章），无需JS。
+   以下JS仅为增强：处理小节锚点(#sec-*)所在章节的显示与滚动，以及导航高亮装饰。
+   全部try/catch包裹，任何老浏览器异常都不影响基本导航。 */
 try{
+  function pwFindPage(n){
+    var p = n;
+    while(p && p !== document.body){
+      if(p.className && (' ' + p.className + ' ').indexOf(' page ') > -1){ return p; }
+      p = p.parentNode;
+    }
+    return null;
+  }
+  function pwRoute(){
+    var pages = document.querySelectorAll('.page'), i;
+    for(i=0; i<pages.length; i++){ pages[i].classList.remove('active'); }
+    var h = location.hash || '';
+    if(h.indexOf('#sec-') === 0){
+      var el = document.getElementById(h.slice(1));
+      if(el){
+        var p = pwFindPage(el);
+        if(p){
+          p.classList.add('active');
+          setTimeout(function(){
+            try{
+              var r = el.getBoundingClientRect();
+              var docTop = r.top + (window.pageYOffset || document.documentElement.scrollTop || 0);
+              window.scrollTo(0, docTop - 90);
+            }catch(e2){}
+          }, 0);
+        }
+      }
+    } else if(h.indexOf('#page-') === 0){
+      window.scrollTo(0, 0);
+    }
+  }
+  window.addEventListener('hashchange', pwRoute, false);
+  if(location.hash && location.hash.indexOf('#sec-') === 0){ pwRoute(); }
+
+  /* 滚动高亮（仅统计可见元素） */
   var navLinks = document.querySelectorAll('#nav a[href^="#page-"]');
   var allChips = document.querySelectorAll('.subnav .chip');
+  function visTop(id){
+    var t = document.getElementById(id);
+    if(!t){ return null; }
+    var r = t.getBoundingClientRect();
+    if(r.height === 0 && r.width === 0){ return null; }
+    return r.top;
+  }
   function onScroll(){
-    var i, cur = null, curChip = null;
+    var i, cur = null, curChip = null, t;
     for(i=0; i<navLinks.length; i++){
-      var t = document.getElementById(navLinks[i].getAttribute('href').slice(1));
-      if(t && t.getBoundingClientRect().top < 200){ cur = navLinks[i]; }
+      t = visTop(navLinks[i].getAttribute('href').slice(1));
+      if(t !== null && t < 200){ cur = navLinks[i]; }
     }
     for(i=0; i<navLinks.length; i++){ navLinks[i].classList.toggle('active', navLinks[i] === cur); }
     for(i=0; i<allChips.length; i++){
-      var s = document.getElementById(allChips[i].getAttribute('href').slice(1));
-      if(s && s.getBoundingClientRect().top < 200){ curChip = allChips[i]; }
+      t = visTop(allChips[i].getAttribute('href').slice(1));
+      if(t !== null && t < 200){ curChip = allChips[i]; }
     }
     for(i=0; i<allChips.length; i++){ allChips[i].classList.toggle('on', allChips[i] === curChip); }
   }
