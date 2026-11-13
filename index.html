@@ -164,11 +164,11 @@
   </div>
   <nav class="nav" id="nav">
     <div class="nav-title">目 录（全文共四章）</div>
-    <a data-ch="intro"><span class="no">序</span>编制说明与摘要</a>
-    <a data-ch="ch1"><span class="no">一</span>术语和定义</a>
-    <a data-ch="ch2"><span class="no">二</span>政策篇</a>
-    <a data-ch="ch3"><span class="no">三</span>技术标准篇</a>
-    <a data-ch="ch4"><span class="no">四</span>民航绿色低碳专项</a>
+    <a data-ch="intro" href="javascript:void(0)" onclick="showChapter('intro');mToggle(false);return false;" class="active"><span class="no">序</span>编制说明与摘要</a>
+    <a data-ch="ch1" href="javascript:void(0)" onclick="showChapter('ch1');mToggle(false);return false;"><span class="no">一</span>术语和定义</a>
+    <a data-ch="ch2" href="javascript:void(0)" onclick="showChapter('ch2');mToggle(false);return false;"><span class="no">二</span>政策篇</a>
+    <a data-ch="ch3" href="javascript:void(0)" onclick="showChapter('ch3');mToggle(false);return false;"><span class="no">三</span>技术标准篇</a>
+    <a data-ch="ch4" href="javascript:void(0)" onclick="showChapter('ch4');mToggle(false);return false;"><span class="no">四</span>民航绿色低碳专项</a>
   </nav>
   <div class="foot">内容检索整理截至 2026年10月<br>政策与标准以正式发布文本为准</div>
 </aside>
@@ -176,7 +176,7 @@
 <main class="main">
 
   <!-- ===== 编制说明与摘要 ===== -->
-  <div class="page" id="page-intro">
+  <div class="page active" id="page-intro">
     <div class="doc-header">
       <span class="tag">前置部分</span>
       <h2>编制说明与摘要</h2>
@@ -1418,7 +1418,7 @@
     navLinks.forEach(a=>a.classList.toggle('active', a.dataset.ch===ch));
     window.scrollTo({top:0, behavior:'auto'});
   }
-  navLinks.forEach(a=>a.addEventListener('click',()=>{showChapter(a.dataset.ch);mToggle(false);}));
+  /* 导航点击已用内联onclick绑定，兼容微信/iOS */
 
   /* 表格层级/类别 → 小节跳转（自动切换所在章，带高亮闪动） */
   function jump(secId){
