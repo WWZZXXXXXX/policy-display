@@ -1401,61 +1401,93 @@
   </div>
 
 </main>
-
 <script>
+  /* ===== 全部采用ES5语法，兼容老版微信X5/iOS浏览器 ===== */
+
   /* 手机端目录抽屉 */
-  const mBtn = document.getElementById('mBtn'), mMask = document.getElementById('mMask'), mSidebar = document.querySelector('.sidebar');
-  function mToggle(open){ mSidebar.classList.toggle('open', open); mMask.classList.toggle('show', open); }
-  mBtn.addEventListener('click', ()=>mToggle(!mSidebar.classList.contains('open')));
-  mMask.addEventListener('click', ()=>mToggle(false));
+  var mBtn = document.getElementById('mBtn'),
+      mMask = document.getElementById('mMask'),
+      mSidebar = document.querySelector('.sidebar');
+  function mToggle(open){
+    mSidebar.classList.toggle('open', open);
+    mMask.classList.toggle('show', open);
+  }
+  if(mBtn){ mBtn.onclick = function(){ mToggle(!mSidebar.classList.contains('open')); }; }
+  if(mMask){ mMask.onclick = function(){ mToggle(false); }; }
 
   /* 章节切换 */
-  const navLinks = document.querySelectorAll('#nav a[data-ch]');
+  var navLinks = document.querySelectorAll('#nav a[data-ch]');
   function showChapter(ch){
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    const page = document.getElementById('page-'+ch);
-    if(page) page.classList.add('active');
-    navLinks.forEach(a=>a.classList.toggle('active', a.dataset.ch===ch));
-    window.scrollTo({top:0, behavior:'auto'});
+    var pages = document.querySelectorAll('.page'), i;
+    for(i=0; i<pages.length; i++){ pages[i].classList.remove('active'); }
+    var page = document.getElementById('page-' + ch);
+    if(page){ page.classList.add('active'); }
+    for(i=0; i<navLinks.length; i++){
+      navLinks[i].classList.toggle('active', navLinks[i].getAttribute('data-ch') === ch);
+    }
+    window.scrollTo(0, 0);
   }
-  /* 导航点击已用内联onclick绑定，兼容微信/iOS */
+
+  /* 找到元素所属的章节页 */
+  function findPage(el){
+    var node = el;
+    while(node){
+      if(node.nodeType === 1 && node.classList && node.classList.contains('page')){ return node; }
+      node = node.parentNode;
+    }
+    return null;
+  }
 
   /* 表格层级/类别 → 小节跳转（自动切换所在章，带高亮闪动） */
   function jump(secId){
-    const el = document.getElementById(secId);
-    if(!el) return;
-    const page = el.closest('.page');
+    var el = document.getElementById(secId);
+    if(!el){ return; }
+    var page = findPage(el);
     if(page && !page.classList.contains('active')){
-      document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+      var pages = document.querySelectorAll('.page'), i;
+      for(i=0; i<pages.length; i++){ pages[i].classList.remove('active'); }
       page.classList.add('active');
-      navLinks.forEach(a=>a.classList.toggle('active', a.dataset.ch===page.id.replace('page-','')));
+      for(i=0; i<navLinks.length; i++){
+        navLinks[i].classList.toggle('active', navLinks[i].getAttribute('data-ch') === page.id.replace('page-',''));
+      }
     }
-    requestAnimationFrame(()=>{
-      el.scrollIntoView({behavior:'smooth', block:'start'});
+    setTimeout(function(){
+      if(el.scrollIntoView){ el.scrollIntoView(); }
       el.classList.remove('flash');
-      void el.offsetWidth;
+      el.offsetWidth;
       el.classList.add('flash');
-      setTimeout(()=>el.classList.remove('flash'), 1600);
-    });
+      setTimeout(function(){ el.classList.remove('flash'); }, 1600);
+    }, 0);
   }
 
-  /* 顶部小节chips：点击滚动 + 滚动时高亮当前小节 */
-  const chips = document.querySelectorAll('.subnav .chip');
-  chips.forEach(c=>c.addEventListener('click',e=>{
-    e.preventDefault();
-    jump(c.getAttribute('href').slice(1));
-  }));
-  window.addEventListener('scroll',()=>{
-    const activePage = document.querySelector('.page.active');
-    if(!activePage) return;
-    const pageChips = activePage.querySelectorAll('.subnav .chip');
-    let cur = null;
-    pageChips.forEach(c=>{
-      const el = document.getElementById(c.getAttribute('href').slice(1));
-      if(el && el.getBoundingClientRect().top < 140) cur = c;
-    });
-    pageChips.forEach(c=>c.classList.toggle('on', c===cur));
-  },{passive:true});
+  /* 顶部小节chips：点击滚动 */
+  var chips = document.querySelectorAll('.subnav .chip'), k;
+  for(k=0; k<chips.length; k++){
+    (function(c){
+      c.onclick = function(e){
+        if(e && e.preventDefault){ e.preventDefault(); }
+        jump(c.getAttribute('href').slice(1));
+        return false;
+      };
+    })(chips[k]);
+  }
+
+  /* 滚动时高亮当前小节 */
+  window.addEventListener('scroll', function(){
+    var activePage = null;
+    var all = document.querySelectorAll('.page'), i, j;
+    for(i=0; i<all.length; i++){
+      if(all[i].classList.contains('active')){ activePage = all[i]; break; }
+    }
+    if(!activePage){ return; }
+    var pageChips = activePage.querySelectorAll('.subnav .chip');
+    var cur = null;
+    for(j=0; j<pageChips.length; j++){
+      var el = document.getElementById(pageChips[j].getAttribute('href').slice(1));
+      if(el && el.getBoundingClientRect().top < 140){ cur = pageChips[j]; }
+    }
+    for(j=0; j<pageChips.length; j++){ pageChips[j].classList.toggle('on', pageChips[j] === cur); }
+  }, false);
 </script>
 </body>
 </html>
