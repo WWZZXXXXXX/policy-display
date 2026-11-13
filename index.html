@@ -155,7 +155,8 @@
   .qa-btn{position:fixed;right:24px;bottom:24px;z-index:90;width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,#0e5fd8,#0d9488);color:#fff;font-size:26px;box-shadow:0 6px 20px rgba(14,95,216,.4);display:flex;align-items:center;justify-content:center;transition:.2s;font-family:inherit}
   .qa-btn:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(14,95,216,.5)}
   .qa-btn .qa-dot{position:absolute;top:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:#ffd43b;border:2px solid #fff}
-  .qa-panel{display:none;position:fixed;right:24px;bottom:92px;z-index:90;width:400px;max-width:calc(100vw - 24px);height:min(620px,76vh);background:#f6f9fd;border-radius:16px;box-shadow:0 12px 40px rgba(11,37,69,.28);border:1px solid #dbe5f2;flex-direction:column;overflow:hidden}
+  .qa-panel{display:none;position:fixed;right:24px;bottom:92px;z-index:90;width:400px;height:560px;background:#f6f9fd;border-radius:16px;box-shadow:0 12px 40px rgba(11,37,69,.28);border:1px solid #dbe5f2;flex-direction:column;overflow:hidden}
+  .qa-panel{width:min(400px,calc(100vw - 24px));height:min(620px,76vh)}
   .qa-panel.open{display:flex}
   .qa-head{background:linear-gradient(135deg,#0b2545,#0e5fd8);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:10px}
   .qa-head .qa-ico{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:18px}
@@ -180,8 +181,17 @@
   .qa-input button{border:none;background:var(--c-primary);color:#fff;border-radius:10px;padding:0 18px;font-size:13px;cursor:pointer;font-family:inherit}
   .qa-input button:hover{background:var(--c-primary-dark)}
   @media (max-width:768px){
-    .qa-panel{right:12px;left:12px;bottom:84px;width:auto;height:68vh}
-    .qa-btn{right:16px;bottom:16px}
+    .qa-panel{right:8px;left:8px;bottom:78px;width:auto;height:64vh;max-height:64vh;border-radius:14px}
+    .qa-btn{right:14px;bottom:14px;width:52px;height:52px;font-size:23px}
+    .qa-head{padding:10px 14px}
+    .qa-head .qa-ico{width:30px;height:30px;font-size:16px}
+    .qa-head .qa-tt b{font-size:13.5px}
+    .qa-head .qa-tt span{font-size:10px}
+    .qa-body{padding:10px}
+    .qa-msg{font-size:13px;max-width:94%}
+    .qa-input input{font-size:16px}
+    .qa-input button{font-size:14px}
+    .qa-quick button{font-size:12px;padding:5px 12px}
   }
 </style>
 </head>
@@ -1661,6 +1671,8 @@ qaBtn.onclick = function(){
 qaClose.onclick = function(){ qaPanel.className = 'qa-panel'; };
 qaSend.onclick = qaSendMsg;
 qaInput.onkeydown = function(e){ if(e && e.keyCode === 13){ qaSendMsg(); } };
+qaInput.onfocus = function(){ if(window.innerWidth <= 768){ qaPanel.style.height = '46vh'; } };
+qaInput.onblur = function(){ qaPanel.style.height = ''; };
 qaBody.onclick = function(e){
   var n = e && e.target ? e.target : window.event.srcElement;
   if(n && n.getAttribute && n.getAttribute('data-q')){
