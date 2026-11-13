@@ -151,6 +151,38 @@
     .chips{gap:6px}
     .chip{font-size:12px;padding:6px 12px}
   }
+  /* ===== 智能问答窗口 ===== */
+  .qa-btn{position:fixed;right:24px;bottom:24px;z-index:90;width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,#0e5fd8,#0d9488);color:#fff;font-size:26px;box-shadow:0 6px 20px rgba(14,95,216,.4);display:flex;align-items:center;justify-content:center;transition:.2s;font-family:inherit}
+  .qa-btn:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(14,95,216,.5)}
+  .qa-btn .qa-dot{position:absolute;top:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:#ffd43b;border:2px solid #fff}
+  .qa-panel{display:none;position:fixed;right:24px;bottom:92px;z-index:90;width:400px;max-width:calc(100vw - 24px);height:min(620px,76vh);background:#f6f9fd;border-radius:16px;box-shadow:0 12px 40px rgba(11,37,69,.28);border:1px solid #dbe5f2;flex-direction:column;overflow:hidden}
+  .qa-panel.open{display:flex}
+  .qa-head{background:linear-gradient(135deg,#0b2545,#0e5fd8);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:10px}
+  .qa-head .qa-ico{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:18px}
+  .qa-head .qa-tt{flex:1}
+  .qa-head .qa-tt b{font-size:14.5px;display:block}
+  .qa-head .qa-tt span{font-size:11px;opacity:.8}
+  .qa-close{border:none;background:rgba(255,255,255,.14);color:#fff;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:15px;font-family:inherit}
+  .qa-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+  .qa-msg{max-width:88%;padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.85}
+  .qa-msg.bot{background:#fff;border:1px solid #e0e8f4;align-self:flex-start;border-top-left-radius:4px;color:#2c3e50}
+  .qa-msg.user{background:var(--c-primary);color:#fff;align-self:flex-end;border-top-right-radius:4px}
+  .qa-msg.bot b{color:var(--c-primary-dark)}
+  .qa-msg.bot .qa-ref{display:inline-block;margin-top:6px;font-size:12px;color:var(--c-primary);background:#e8f0fe;border:1px solid #c6dbfb;border-radius:6px;padding:3px 10px;text-decoration:none}
+  .qa-msg.bot .qa-ref:hover{background:var(--c-primary);color:#fff}
+  .qa-typing{align-self:flex-start;background:#fff;border:1px solid #e0e8f4;border-radius:12px;padding:12px 16px;font-size:14px;letter-spacing:3px;color:#8ea4bd}
+  .qa-quick{padding:8px 12px 4px;display:flex;flex-wrap:wrap;gap:6px;background:#f6f9fd}
+  .qa-quick button{font-size:11.5px;border:1px solid #c6dbfb;background:#fff;color:var(--c-primary);border-radius:999px;padding:4px 11px;cursor:pointer;font-family:inherit}
+  .qa-quick button:hover{background:var(--c-primary);color:#fff}
+  .qa-input{display:flex;gap:8px;padding:10px 12px 12px;background:#f6f9fd}
+  .qa-input input{flex:1;border:1px solid #cdd9ea;border-radius:10px;padding:9px 12px;font-size:13px;font-family:inherit;outline:none;background:#fff}
+  .qa-input input:focus{border-color:var(--c-primary)}
+  .qa-input button{border:none;background:var(--c-primary);color:#fff;border-radius:10px;padding:0 18px;font-size:13px;cursor:pointer;font-family:inherit}
+  .qa-input button:hover{background:var(--c-primary-dark)}
+  @media (max-width:768px){
+    .qa-panel{right:12px;left:12px;bottom:84px;width:auto;height:68vh}
+    .qa-btn{right:16px;bottom:16px}
+  }
 </style>
 </head>
 <body>
@@ -1463,6 +1495,181 @@ try{
   }
   window.addEventListener('scroll', onScroll, false);
   onScroll();
+}catch(e){}
+</script>
+
+<!-- ===== 智能问答窗口 ===== -->
+<button class="qa-btn" id="qaBtn" aria-label="智能问答"><span>💬</span><span class="qa-dot"></span></button>
+<div class="qa-panel" id="qaPanel">
+  <div class="qa-head">
+    <div class="qa-ico">🤖</div>
+    <div class="qa-tt"><b>汇编智能问答</b><span>基于《超低能耗建筑政策与技术标准汇编》</span></div>
+    <button class="qa-close" id="qaClose" aria-label="关闭">✕</button>
+  </div>
+  <div class="qa-body" id="qaBody"></div>
+  <div class="qa-quick" id="qaQuick"></div>
+  <div class="qa-input">
+    <input type="text" id="qaInput" placeholder="输入问题，如：深圳超低能耗资助标准" />
+    <button id="qaSend">发送</button>
+  </div>
+</div>
+
+<script>
+try{
+/* ================= 知识库（内容摘自本汇编） ================= */
+var QA_KB = [
+{t:"超低能耗建筑的定义",q:["超低能耗","什么是超低能耗建筑"],a:"超低能耗建筑是近零能耗建筑的<b>初级表现形式</b>，室内环境参数与近零能耗建筑相同，能效指标略低：其建筑能耗水平应较GB 50189-2015等2016年节能标准<b>降低50％以上</b>（来源：GB/T 51350-2019）。",l:"#sec-c1-1",lt:"第一章 术语和定义"},
+{t:"近零能耗建筑的定义",q:["近零能耗"],a:"适应气候特征和场地条件，通过被动式设计最大幅度降低建筑供暖、空调、照明需求，通过主动技术措施提高能源设备与系统效率，充分利用可再生能源。能耗水平较2016年节能标准<b>降低60％～75％以上</b>。",l:"#sec-c1-1",lt:"第一章 术语和定义"},
+{t:"零能耗建筑的定义",q:["零能耗"],a:"近零能耗建筑的高级表现形式：充分利用建筑本体和周边可再生能源资源，使<b>可再生能源年产能≥建筑全年全部用能</b>。",l:"#sec-c1-1",lt:"第一章 术语和定义"},
+{t:"三级能耗建筑的区别",q:["超低能耗近零能耗零能耗区别","三者区别","能耗建筑区别"],a:"①<b>超低能耗</b>：较基准降50%以上；②<b>近零能耗</b>：降60%～75%以上；③<b>零能耗</b>：可再生能源年产能≥全年用能。计算边界均含供暖、通风、空调、照明、生活热水和电梯能耗（GB 55015-2021仅含供暖通风空调照明）。",l:"#sec-c1-1",lt:"图1-1条文说明"},
+{t:"建筑能耗综合值",q:["能耗综合值","建筑能耗综合值是什么"],a:"在设定计算条件下，单位面积年供暖、通风、空调、照明、生活热水、电梯的终端能耗量和可再生能源系统发电量，统一换算到标准煤当量后的<b>差值</b>。",l:"#sec-c1-1",lt:"1.0.4条"},
+{t:"建筑本体节能率与综合节能率",q:["本体节能率","综合节能率"],a:"<b>本体节能率</b>：不含可再生能源发电量的能耗综合值与基准建筑的差值比率；<b>综合节能率</b>：含可再生能源发电量的设计建筑与基准建筑的差值比率。",l:"#sec-c1-1",lt:"1.0.5~1.0.6条"},
+{t:"可再生能源利用率",q:["可再生能源利用率"],a:"供暖、通风、空调、照明、生活热水、电梯系统中可再生能源利用量<b>占其能量需求量的比例</b>。",l:"#sec-c1-1",lt:"1.0.7条"},
+{t:"低碳建筑的定义",q:["低碳建筑","低碳建筑定义"],a:"碳排放指标符合《零碳建筑技术标准》规定的建筑。降碳率要求：严寒地区≥40%、寒冷地区≥35%、其他地区≥30%（相对GB 55015-2021基准）。",l:"#sec-c1-2",lt:"1.0.8条"},
+{t:"近零碳建筑的定义",q:["近零碳建筑"],a:"在低碳建筑基础上，进一步提升本体降碳水平、利用可再生能源，实现碳排放量接近零的建筑。降碳率：严寒≥55%、寒冷≥50%、其他≥45%。",l:"#sec-c1-2",lt:"1.0.9条"},
+{t:"零碳建筑的定义",q:["零碳建筑","零碳建筑定义"],a:"在近零碳建筑基础上，结合绿色电力交易、绿证交易与碳排放权交易，实现<b>净碳排放量不大于零</b>的建筑。",l:"#sec-c1-2",lt:"1.0.10条"},
+{t:"碳中和建筑的定义",q:["碳中和建筑"],a:"T/CECS 1555-2024定义：通过优化设计、建材选用、施工和运行管理提高自身节能减碳能力，合理应用碳信用、绿色电力等措施，达到<b>净零碳排放状态</b>的建筑。评价分铜、银、金、铂金四级。",l:"#sec-c1-2",lt:"1.0.11条"},
+{t:"低碳/近零碳/零碳园区的分级",q:["低碳园区","近零碳园区","零碳园区","园区分级"],a:"按T/CABEE 103-2025与国标报批稿：<b>低碳园区</b>降碳率≥30%；<b>近零碳园区</b>≥60%；<b>零碳园区</b>在满足近零碳基础上，经可再生能源信用与碳信用抵消后年净碳排放不大于零。",l:"#sec-3-5-5",lt:"3.5.5 零碳园区类标准"},
+{t:"零碳航站楼的定义",q:["零碳航站楼","零碳航站楼定义"],a:"在近零碳航站楼基础上，利用机场其它区域可再生能源和建筑蓄能，采用可再生能源信用与碳信用抵消剩余碳排放，且碳排放指标符合T/CCAATB 0061-2024规定的航站楼。注意：是\"净零\"而非\"零排放\"，碳信用抵消不得超过基准航站楼碳排放的20%。",l:"#sec-c1-2",lt:"1.0.17条"},
+{t:"'1+N'政策体系",q:["1+n","1+N","政策体系","顶层设计文件"],a:"<b>\"1\"</b>是统领全局的顶层设计：《关于完整准确全面贯彻新发展理念做好碳达峰碳中和工作的意见》+《2030年前碳达峰行动方案》；<b>\"N\"</b>是能源、工业、城乡建设、交通等重点领域实施方案及科技、金融、财税、统计核算等配套政策。全国形成\"中央统筹、省级负总责、市县落实\"三级执行体系。",l:"#sec-tbl21",lt:"表2-1 政策一览"},
+{t:"碳达峰十大行动",q:["十大行动","碳达峰行动"],a:"①能源绿色低碳转型 ②节能降碳增效 ③工业领域碳达峰 ④<b>城乡建设碳达峰</b> ⑤交通运输绿色低碳 ⑥循环经济助力降碳 ⑦绿色低碳科技创新 ⑧碳汇能力巩固提升 ⑨绿色低碳全民行动 ⑩各地区梯次有序碳达峰。",l:"#sec-2-1",lt:"表2-2"},
+{t:"能耗双控向碳排放双控转变",q:["能耗双控","碳排放双控","双控转变"],a:"2021年12月中央经济工作会议首次提出转变；2024年8月《加快构建碳排放双控制度体系工作方案》明确\"十五五\"不再将能耗强度作为约束性指标，实施碳排放强度控制为主、总量为辅；2025年1月《能源法》提供法律依据。",l:"#sec-2-5",lt:"2.5 考核政策"},
+{t:"双碳目标考核办法",q:["考核办法","考核政策","双碳考核"],a:"2026年4月12日中办、国办发布《碳达峰碳中和综合评价考核办法》，自<b>2026年度起</b>对各省区市党委、政府进行考核，设控制指标与支撑指标，结果作为领导班子综合考核评价重要参考——首次将双碳目标纳入党政综合考核体系。",l:"#sec-2-5",lt:"2.5 考核政策"},
+{t:"深圳绿色建筑条例要求",q:["深圳经济特区绿色建筑条例","深圳条例"],a:"2022年7月1日施行：新建民用建筑全面按<b>不低于一星级</b>建设；大型公共建筑和国家机关办公建筑<b>不低于二星级</b>；大力发展超低能耗建筑，鼓励近零能耗、零碳、近零碳排放试验区示范；建立绿色建筑性能后评估制度。",l:"#sec-2-3-2",lt:"2.3.2（1）"},
+{t:"深圳超低能耗财政资助标准",q:["深圳资助","财政资助","补贴","资助标准","150元"],a:"《关于支持建筑领域绿色低碳发展若干措施》（深建规〔2022〕4号）：被认定为国家或深圳市示范项目的超低能耗/（近）零碳零能耗项目，按建筑面积<b>资助150元/㎡</b>，单项目上限<b>500万元</b>且不超过建安工程费5%；政府或国有资金投资项目不资助。",l:"#sec-2-3-2",lt:"2.3.2（2）"},
+{t:"深圳碳达峰量化目标",q:["深圳碳达峰","深圳目标","1000万平方米"],a:"《深圳市碳达峰实施方案》：到2030年，新建建筑中二星级以上绿色建筑占比<b>60%</b>，超低能耗、近零能耗、零碳建筑实施面积<b>不少于1000万㎡</b>，新建居住建筑平均节能率<b>75%</b>、公共建筑<b>78%</b>。",l:"#sec-2-3-2",lt:"2.3.2（3）"},
+{t:"广东岭南特色超低能耗路线",q:["岭南特色","广东300万","广东省"],a:"广东确立\"岭南特色超低能耗及近零能耗建筑\"路线：以<b>隔热、遮阳、自然通风</b>的被动式设计为主导（区别于北方保温主导）。目标建设岭南特色超低能耗及近零能耗建筑<b>300万㎡</b>（多处文件重申）。",l:"#sec-2-3-1",lt:"2.3.1 广东省"},
+{t:"国家级零碳园区910号文",q:["910号","零碳园区建设","国家级零碳园区"],a:"发改环资〔2025〕910号：核心指标<b>单位能耗碳排放</b>——年能耗20万~100万吨标煤的园区≤0.2吨CO₂/吨标煤、100万吨以上≤0.3；引导指标：清洁能源消费≥90%、工业固废综合利用≥80%、余热余冷余压利用≥50%、工业水重复利用≥80%。2025年12月公布第一批52个园区。",l:"#sec-3-5-1",lt:"表3-6"},
+{t:"'十五五'碳达峰行动方案建筑要求",q:["十五五","十五五方案"],a:"2026年国务院印发，与建筑领域直接相关的量化要求：<b>单位建筑面积直接碳排放\"十五五\"期间降低3%</b>。",l:"#sec-2-2",lt:"2.2（7）"},
+{t:"GB/T 51350近零能耗标准体系",q:["51350","gb/t 51350","近零能耗技术标准"],a:"GB/T 51350-2019建立\"超低能耗—近零能耗—零能耗\"三级体系。关键指标：超低能耗居住建筑能耗综合值≤65 kWh/(㎡·a)；近零能耗≤55；超低能耗公共建筑综合节能率≥50%、本体节能率≥20%（夏热冬暖）；近零能耗公建综合节能率≥60%；气密性N₅₀≤0.6（居住）/1.0（公建）；可再生能源利用率≥10%。",l:"#sec-3-4-1",lt:"表3-3、3-4"},
+{t:"GB 55015强制性节能规范",q:["55015","gb 55015","通用规范"],a:"《建筑节能与可再生能源利用通用规范》GB 55015-2021：全文强制性工程建设规范，2022年4月1日实施，要求新建居住与公共建筑平均节能率分别提升至<b>75%</b>和<b>72%</b>——\"第四步\"建筑节能的标志。",l:"#sec-3-3",lt:"3.3 强制性标准"},
+{t:"深圳节能设计标准节能率",q:["sjg 44","sjg 45","深圳节能率","78%"],a:"深圳《公共建筑节能设计标准》SJG 44-2025、《居住建筑节能设计标准》SJG 45-2025（2025年10月1日实施）：公共建筑节能率目标<b>78%</b>、居住建筑<b>75%</b>，为全国最高水平。",l:"#sec-3-3",lt:"表3-2"},
+{t:"深圳超低能耗标准SJG 228",q:["sjg 228","228-2026","深圳超低能耗标准"],a:"SJG 228-2026（2026年9月1日实施，原导则升级）：覆盖设计、施工、运行、评价全链条；以制冷机房<b>EERa</b>分级（超低/近零/零能耗对应三/二/一级能效）；强化高效制冷机房与蓄冷（水蓄冷适配深圳模式）；弱化北方气密性/保温/热桥要求；给出被动式技术与蓄冷节能算法。",l:"#sec-3-4-4",lt:"3.4.4"},
+{t:"广州岭南特色技术指南要点",q:["广州指南","岭南指南","shgc"],a:"广州市《岭南特色超低能耗建筑技术指南》：SHGC收紧至<b>≤0.15</b>；围护结构适当放宽（屋顶≤0.8、外墙≤1.0、外窗≤3.5 W/(㎡·K)）；气密性N₅₀放宽至≤3.0（为自然通风留余地）；公建本体节能率≥30%严于国标；应对回南天专项要求。",l:"#sec-3-4-3",lt:"3.4.3"},
+{t:"近零能耗建筑测评流程",q:["测评","测评标准","测评流程","测评标识"],a:"T/CABEE 003-2019（2025年修订版）：分<b>设计测评、竣工测评、运行评估</b>三阶段，通过后获设计/竣工/运行标识。程序八环节：项目申报→形式审查→技术预审→专家审查会→结果报送→资料抽检→公示（9天）→颁发证书。2025年已公示至第七批（第七批34个项目）。",l:"#sec-3-4-2",lt:"3.4.2"},
+{t:"零碳建筑技术标准（报批稿）",q:["零碳建筑技术标准","报批稿","碳排放等效电量"],a:"国标报批稿：建立\"碳排放强度＋降碳率\"双控分级。低碳公建降碳率：严寒≥40%、寒冷≥35%、其他≥30%；近零碳：≥55%/50%/45%；零碳：净碳排放≤0（可经绿电绿证碳交易扣减）。判定以年为周期、单栋建筑为对象；设计判定需购买不少于10年运行期交易产品。",l:"#sec-3-5-2",lt:"表3-7~3-12"},
+{t:"零碳建筑测评标准T/CABEE 080",q:["080-2024","零碳建筑测评"],a:"T/CABEE 080-2024（2024年9月1日实施）：我国<b>首个零碳建筑测评团体标准</b>，与在编国标衔接。评价分设计预评价、运行评价、全过程评价。截至2026年3月全国累计测评零碳建筑38栋、零碳园区2个——国标出台前唯一可操作的测评工具。",l:"#sec-3-5-3",lt:"3.5.3"},
+{t:"碳中和建筑评价等级",q:["碳中和评价","t/cecs 1555","铜级银级金级铂金"],a:"T/CECS 1555-2024分<b>铜、银、金、铂金</b>四级（运行阶段最高金级、全生命期最高铂金级）。金级要求：能耗较现行标准降25%以上、用电负荷调节≥30%、可再生电力替代≥8%、绿色建材≥50%、绿容率≥0.8。首个示范：苏州东站项目获金级。",l:"#sec-3-5-4",lt:"表3-13"},
+{t:"建筑节能标准三步走",q:["三步走","四步","节能标准发展"],a:"\"三步走\"：1986年节能30%→1996年50%→2010年65%；\"第四步\"：2021年GB 55015要求居住/公建平均节能率75%/72%；深圳SJG 44/45进一步至78%/75%。未来方向：超低能耗、近零能耗、零能耗建筑。",l:"#sec-3-2",lt:"3.2 标准发展"},
+{t:"全国建筑碳排放现状数据",q:["碳排放现状","13.0","24.7","建筑能耗占比"],a:"2024年：全国民用建筑运行能耗<b>13.0亿tce</b>（占全国21.8%）、碳排放<b>24.7亿tCO₂</b>（占22.1%）。其中公共建筑5.7亿tce/10.6亿tCO₂、城镇居住5.0/9.7、农村居住2.3/4.4。（《中国城乡建设领域碳排放研究报告(2025)》）",l:"#sec-3-1",lt:"3.1 现状"},
+{t:"民航业碳排放现状",q:["民航现状","吨公里油耗","每客能耗"],a:"2025年：中国民航吨公里油耗<b>0.260千克</b>（较2005年降23.8%）；机场平均每客能耗、每客CO₂排放较基线（2013-2015均值）分别降<b>44.7%</b>和<b>70.5%</b>。境内运输机场270个，场内电动车辆占比34.7%，APU替代设施使用率稳定95%以上，机场电力、天然气、外购热力占比92.7%。",l:"#sec-4-1",lt:"4.1 民航现状"},
+{t:"四型机场",q:["四型机场","四型"],a:"《四型机场建设行动纲要（2020-2035年）》确立以<b>平安、绿色、智慧、人文</b>为核心的建设路径：平安是基本前提，绿色与智慧是实现路径，人文是根本目标。绿色机场要求优化能源结构、提高可再生能源使用率、实施精细化智能化能源管理，条件适宜的机场建筑屋面宜设光伏。配套标准MH/T 5049-2020。",l:"#sec-4-3-2",lt:"4.3.2（3）"},
+{t:"绿色机场评价导则",q:["5069","绿色机场评价","六类指标"],a:"MH/T 5069-2023：以机场总体为对象，设<b>选址与规划、生态与环境、绿色建筑、资源与碳排放、高效运行、舒适卫生</b>6类指标，分设计/运行评价。总得分60/70/85分对应一/二/三星级。运行评价中\"高效运行\"权重升至0.22。加分项含近零碳航站楼/近零碳机场创新实践。",l:"#sec-4-4-1",lt:"表4-2"},
+{t:"双碳机场评价",q:["双碳机场","星级评价","四星机场"],a:"中国民用机场协会2026版\"双碳机场\"评价：按制度、行动、绩效三维度，分<b>一星（基础级）至五星（引领级）</b>，四星为\"先进级\"，有效期3年。截至2025年9月已完成47个机场评价；四星级：上海浦东、上海虹桥（首批）、昆明长水、无锡硕放；三星级：北京大兴。三星要求主要能耗指标不高于约束值、四星不高于引导值。",l:"#sec-tbl41",lt:"表4-3、4-4"},
+{t:"航站楼能效MH/T 5112深圳限值",q:["5112","甲类Ⅱ类","航站楼能耗","航站楼能效"],a:"MH/T 5112-2016按吞吐量分甲类（>1000万人次）/乙类，按气候分Ⅰ/Ⅱ类——<b>深圳机场属甲类Ⅱ类</b>。约束值/引导值：单位面积综合能耗<b>30/20</b> kgce/(㎡·a)、电耗<b>170/140</b> kWh/(㎡·a)、单位旅客综合能耗0.40/0.30 kgce、年耗冷量0.80/0.60 GJ/(㎡·a)、年供冷能耗80/55 kWh/(㎡·a)。",l:"#sec-4-4-1",lt:"表4-6、4-7"},
+{t:"深圳机场T3航站楼能耗水平",q:["t3","T3航站楼","耗冷量"],a:"据《机场航站楼空调系统负荷精算方法研究》，深圳机场T3航站楼经全年负荷精算的单位建筑面积年耗冷量约<b>0.77 GJ/(㎡·a)</b>（折合212.7 kWh/(㎡·a)），处于甲类Ⅱ类约束值（0.80）与引导值（0.60）之间——既有航站楼尚有提升空间。",l:"#sec-4-4-1",lt:"4.4.1（6）"},
+{t:"零碳航站楼分级指标",q:["0061","零碳航站楼标准","降碳率","108","83"],a:"T/CCAATB 0061-2024分级（夏热冬暖·甲类，深圳适用）：<b>低碳航站楼</b>降碳率≥15%~25%、碳排放强度≤108 kgCO₂/(㎡·a)；<b>近零碳航站楼</b>≥35%~45%、≤83；<b>零碳航站楼</b>在近零碳基础上经市场化扣减后净碳排放≤0，碳信用抵消≤基准的20%。设计阶段电力排放因子取0.5 kgCO₂/kWh。计算边界不含APU替代设施、捷运系统。",l:"#sec-4-4-2",lt:"表4-8"},
+{t:"智慧能源管理系统MH/T 5043",q:["5043","智慧能源"],a:"MH/T 5043-2019（首部机场智慧能源行业标准）：平台按安全分区（生产控制区/管理信息区，区间单向物理隔离）；EUI、EUP、冷站EER等指标须达MH/T 5112约束值与引导值的<b>平均值</b>；明确\"条件适宜的机场建筑屋面宜设置光伏发电系统\"并纳入平台统一调度。",l:"#sec-4-4-1",lt:"4.4.1（3）"},
+{t:"绿色航站楼标准MH/T 5033",q:["5033","绿色航站楼"],a:"MH/T 5033-2017：以航站楼能耗满足MH/T 5112<b>约束值并宜达引导值</b>为核心控制目标，配套能耗分项计量、围护结构热工优于GB 50189、可再生能源与蓄冷利用、暖通空调与<b>航班信息联动</b>的分时/分区控制、GPU/PCA站坪设施配置等——航站楼近零能耗改造的直接技术依据。",l:"#sec-4-4-2",lt:"4.4.2（1）"},
+{t:"机场场内车辆电动化",q:["电动化","场内车辆","油改电"],a:"《2030年前碳达峰行动方案》（国家战略层唯一机场专属条款）：\"提升机场运行电动化智能化水平，发展新能源航空器\"\"<b>到2030年民用运输机场场内车辆装备等力争全面实现电动化</b>\"。2025年底机场场内电动车辆占比34.7%。",l:"#sec-4-3-1",lt:"4.3.1（1）"},
+{t:"国家广东深圳园区指标对比",q:["园区对比","指标对比","三个层级对比"],a:"四级差异：①目标层级——国标三级递进（30%/60%/净零）、910号文单级验收、深圳近零碳+A/B档；②核心指标——国家用单位能耗碳排放（0.2/0.3吨）、广东同、深圳用\"较2020年降40%\"相对指标；③刚性——广东引导19项/核心1项，深圳核心5项；④路径——国家/深圳走测评验收，广东走\"省级名单+期满认定\"。",l:"#sec-3-5-7",lt:"表3-18"},
+{t:"深圳近零碳排放区试点",q:["近零碳排放区","深圳试点","试点验收"],a:"2021年启动，四批累计<b>113个</b>试点、年减碳约57万吨。2025年12月深化方案将试点扩至七类（新增乡村），园区分A/B档，提出到2030年新创建100个。截至2026年7月通过验收<b>19个</b>（含新洲小学、深圳北站枢纽、大梅沙社区、建科院未来大厦等）。",l:"#sec-3-5-6",lt:"表3-16"},
+{t:"广东省零碳园区建设",q:["广东零碳园区","25个","15个园区"],a:"《广东省零碳园区建设方案》（2025年11月）：目标<b>2027年建设25个左右</b>零碳园区。配套指标体系20项（核心1项：单位能耗碳排放≤0.3吨/吨标煤）。2026年3月公布第一批省级建设名单<b>15个</b>园区（广州南沙大岗、佛山狮山、肇庆大旺等）。",l:"#sec-3-5-6",lt:"表3-15"},
+{t:"机场片区指标适配建议",q:["机场片区","适配","指标适配"],a:"汇编分析结论：机场片区创建近零碳园区宜以<b>深圳市近零碳排放园区试点体系为主体框架</b>（多数指标不依赖工业产出、适配度高），对工业属性指标（单位产值碳排放、工业固废、工业水重复利用）按机场功能调整为\"单位旅客吞吐量/单位建筑面积碳排放\"等口径；国标区域指标作设计依据；910号文口径工业属性重，宜作远期参考。",l:"#sec-3-5-7",lt:"3.5.7"},
+{t:"汇编的章节结构",q:["汇编包含","章节结构","目录","怎么用"],a:"本汇编共四章：第一章<b>术语和定义</b>（17条术语）、第二章<b>政策篇</b>（\"1+N\"体系：顶层设计/各部委/广东省/深圳市/其他城市/考核政策）、第三章<b>技术标准篇</b>（强制性与推荐性节能标准、零碳类标准）、第四章<b>民航建筑绿色低碳标准专项</b>（民航政策与机场标准）。点击左侧目录可直接跳转。",l:"#page-intro",lt:"编制说明"}
+];
+
+/* ================= 匹配引擎 ================= */
+function qaScore(entry, query){
+  var s = 0, i;
+  for(i=0; i<entry.q.length; i++){
+    if(query.indexOf(entry.q[i]) > -1){ s += (entry.q[i].length >= 4 ? 3 : 2); }
+  }
+  if(query.indexOf(entry.t) > -1){ s += 3; }
+  return s;
+}
+function qaFind(query){
+  var best = null, bestS = 0, second = [], i, s;
+  for(i=0; i<QA_KB.length; i++){
+    s = qaScore(QA_KB[i], query);
+    if(s > bestS){ if(best){ second.unshift(best); if(second.length > 2){ second.pop(); } } best = QA_KB[i]; bestS = s; }
+    else if(s > 0 && second.length < 2){ second.push(QA_KB[i]); }
+  }
+  return best ? { hit: best, others: second } : null;
+}
+
+/* ================= 界面逻辑 ================= */
+var qaBtn = document.getElementById('qaBtn'),
+    qaPanel = document.getElementById('qaPanel'),
+    qaClose = document.getElementById('qaClose'),
+    qaBody = document.getElementById('qaBody'),
+    qaInput = document.getElementById('qaInput'),
+    qaSend = document.getElementById('qaSend'),
+    qaQuick = document.getElementById('qaQuick'),
+    qaGreeted = false;
+
+function qaScroll(){ qaBody.scrollTop = qaBody.scrollHeight; }
+function qaAddUser(txt){
+  var d = document.createElement('div');
+  d.className = 'qa-msg user';
+  d.appendChild(document.createTextNode(txt));
+  qaBody.appendChild(d); qaScroll();
+}
+function qaAddBot(html){
+  var d = document.createElement('div');
+  d.className = 'qa-msg bot';
+  d.innerHTML = html;
+  qaBody.appendChild(d); qaScroll();
+  return d;
+}
+function qaAnswer(query){
+  var r = qaFind(query);
+  if(r){
+    var html = r.hit.a;
+    if(r.hit.l){ html += '<br><a class="qa-ref" href="' + r.hit.l + '">📍 ' + r.hit.lt + '</a>'; }
+    if(r.others.length){
+      html += '<br><span style="font-size:11px;color:#8ea4bd">相关问题：</span> ';
+      for(var i=0; i<r.others.length; i++){
+        html += '<a class="qa-ref" style="margin:2px 4px 0 0" href="javascript:void(0)" data-q="' + r.others[i].t + '">' + r.others[i].t + '</a>';
+      }
+    }
+    qaAddBot(html);
+  }else{
+    qaAddBot('抱歉，暂未在汇编中找到直接答案。<br>建议：①换用<b>标准编号</b>（如 SJG 228、5112）提问；②用<b>政策名称或术语关键词</b>（如 零碳航站楼、资助）；③从左侧目录浏览对应章节。<br><a class="qa-ref" href="#page-intro">📍 返回编制说明</a>');
+  }
+}
+function qaSendMsg(){
+  var v = qaInput.value.replace(/^\s+|\s+$/g, '');
+  if(!v){ return; }
+  qaInput.value = '';
+  qaAddUser(v);
+  var t = document.createElement('div');
+  t.className = 'qa-typing'; t.innerHTML = '正在检索汇编';
+  qaBody.appendChild(t); qaScroll();
+  setTimeout(function(){
+    qaBody.removeChild(t);
+    qaAnswer(v.toLowerCase());
+  }, 420);
+}
+function qaGreet(){
+  if(qaGreeted){ return; }
+  qaGreeted = true;
+  qaAddBot('您好！我是<b>汇编智能问答助手</b>，已通读《超低能耗建筑政策与技术标准汇编》全文四章内容。<br>可以问我：<b>术语定义</b>（如：什么是零碳航站楼）、<b>政策要求与量化指标</b>（如：深圳资助标准）、<b>标准编号</b>（如：MH/T 5112深圳限值）。');
+  var seeds = ['深圳超低能耗资助标准', '零碳航站楼分级指标', 'MH/T 5112深圳限值', '1+N政策体系', '双碳机场评价'];
+  qaQuick.innerHTML = '';
+  for(var i=0; i<seeds.length; i++){
+    var b = document.createElement('button');
+    b.appendChild(document.createTextNode(seeds[i]));
+    b.onclick = function(){ qaInput.value = this.innerHTML; qaSendMsg(); };
+    qaQuick.appendChild(b);
+  }
+}
+qaBtn.onclick = function(){
+  var opened = qaPanel.className.indexOf('open') > -1;
+  if(opened){ qaPanel.className = 'qa-panel'; } else { qaPanel.className = 'qa-panel open'; qaGreet(); qaInput.focus(); }
+};
+qaClose.onclick = function(){ qaPanel.className = 'qa-panel'; };
+qaSend.onclick = qaSendMsg;
+qaInput.onkeydown = function(e){ if(e && e.keyCode === 13){ qaSendMsg(); } };
+qaBody.onclick = function(e){
+  var n = e && e.target ? e.target : window.event.srcElement;
+  if(n && n.getAttribute && n.getAttribute('data-q')){
+    qaInput.value = n.getAttribute('data-q'); qaSendMsg(); return;
+  }
+  if(n && n.className === 'qa-ref' && n.getAttribute('href') && n.getAttribute('href').charAt(0) === '#'){
+    if(window.innerWidth <= 768){ qaPanel.className = 'qa-panel'; }
+  }
+};
 }catch(e){}
 </script>
 </body>
