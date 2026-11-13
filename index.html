@@ -34,9 +34,7 @@
   .sidebar .foot{padding:14px 20px;font-size:11px;color:#7d9fc9;border-top:1px solid rgba(255,255,255,.12)}
 
   .main{margin-left:var(--sidebar-w);min-height:100vh}
-  .page{display:none;padding:34px 44px 80px;max-width:1200px}
-  .page.active{display:block;animation:fadeIn .3s ease}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .page{display:block;padding:34px 44px 80px;max-width:1200px;scroll-margin-top:56px}
 
   .doc-header{background:linear-gradient(135deg,#0b2545,#0e5fd8);color:#fff;border-radius:14px;padding:30px 34px;margin-bottom:26px;box-shadow:0 8px 24px rgba(11,37,69,.25)}
   .doc-header .tag{display:inline-block;font-size:12px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);padding:3px 12px;border-radius:999px;margin-bottom:12px}
@@ -70,7 +68,7 @@
   tbody tr:hover{background:#eef4fd}
   .tbl-note{font-size:12px;color:var(--c-text-2);line-height:1.8;margin:8px 0 4px}
 
-  .lv-btn{display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;font-size:13px;font-weight:700;color:#fff;padding:7px 14px;border-radius:8px;transition:.18s;font-family:inherit;line-height:1;white-space:nowrap}
+  .lv-btn{display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;font-size:13px;font-weight:700;color:#fff;padding:7px 14px;border-radius:8px;transition:.18s;font-family:inherit;line-height:1;white-space:nowrap;text-decoration:none}
   .lv-btn:hover{transform:translateY(-1px);filter:brightness(1.08)}
   .lv-btn .arr{font-size:11px;opacity:.85}
   .lv-btn.lv1{background:var(--lv1)} .lv-btn.lv2{background:var(--lv2)} .lv-btn.lv3{background:var(--lv3)}
@@ -125,24 +123,24 @@
     .oneN{grid-template-columns:1fr} .two-col{columns:1}
   }
 
-  /* ===== 手机端适配 ===== */
-  .m-topbar{display:none;position:fixed;top:0;left:0;right:0;z-index:60;background:linear-gradient(90deg,#0b2545,#123a63);color:#fff;padding:11px 14px;align-items:center;gap:12px;box-shadow:0 2px 10px rgba(0,0,0,.3)}
-  .m-topbar .m-btn{flex:none;width:38px;height:38px;border:none;border-radius:9px;background:rgba(255,255,255,.16);color:#fff;font-size:18px;cursor:pointer;font-family:inherit;line-height:1}
-  .m-topbar .m-title{font-size:14px;font-weight:700;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .m-mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:55}
+  /* ===== 手机端适配（静态顶部导航，零JS依赖） ===== */
   @media (max-width:768px){
-    .m-topbar{display:flex}
-    .main{margin-left:0;padding-top:60px}
-    .sidebar{transform:translateX(-105%);transition:transform .25s ease;width:min(78vw,300px)}
-    .sidebar.open{transform:none}
-    .m-mask.show{display:block}
+    .sidebar{position:static;width:100%}
+    .sidebar .brand{padding:14px 16px 10px}
+    .sidebar .brand h1{font-size:16px}
+    .sidebar .brand p{display:none}
+    .sidebar .foot{display:none}
+    .nav{display:flex;overflow-x:auto;padding:6px 8px 10px;-webkit-overflow-scrolling:touch}
+    .nav .nav-title{display:none}
+    .nav a{flex:none;white-space:nowrap;margin:0 3px;padding:8px 12px}
+    .main{margin-left:0}
     .page{padding:16px 14px 60px}
     .doc-header{padding:20px 18px;border-radius:12px}
     .doc-header h2{font-size:20px}
     .doc-header p{font-size:12.5px}
-    .subnav{top:60px}
-    .section{padding:18px 14px;scroll-margin-top:112px}
-    .sub-title{scroll-margin-top:112px}
+    .subnav{top:0}
+    .section{padding:18px 14px;scroll-margin-top:64px}
+    .sub-title{scroll-margin-top:64px}
     table{font-size:12px}
     th,td{padding:7px 9px;line-height:1.6}
     .sec-body p{font-size:13.5px}
@@ -154,9 +152,6 @@
 </head>
 <body>
 
-<div class="m-topbar"><button class="m-btn" id="mBtn" aria-label="打开目录">☰</button><div class="m-title">超低能耗建筑政策与技术标准汇编</div></div>
-<div class="m-mask" id="mMask"></div>
-
 <aside class="sidebar">
   <div class="brand">
     <h1>超低能耗建筑政策与技术标准汇编</h1>
@@ -164,11 +159,11 @@
   </div>
   <nav class="nav" id="nav">
     <div class="nav-title">目 录（全文共四章）</div>
-    <a data-ch="intro" href="javascript:void(0)" onclick="showChapter('intro');mToggle(false);return false;" class="active"><span class="no">序</span>编制说明与摘要</a>
-    <a data-ch="ch1" href="javascript:void(0)" onclick="showChapter('ch1');mToggle(false);return false;"><span class="no">一</span>术语和定义</a>
-    <a data-ch="ch2" href="javascript:void(0)" onclick="showChapter('ch2');mToggle(false);return false;"><span class="no">二</span>政策篇</a>
-    <a data-ch="ch3" href="javascript:void(0)" onclick="showChapter('ch3');mToggle(false);return false;"><span class="no">三</span>技术标准篇</a>
-    <a data-ch="ch4" href="javascript:void(0)" onclick="showChapter('ch4');mToggle(false);return false;"><span class="no">四</span>民航绿色低碳专项</a>
+    <a href="#page-intro" class="active"><span class="no">序</span>编制说明与摘要</a>
+    <a href="#page-ch1"><span class="no">一</span>术语和定义</a>
+    <a href="#page-ch2"><span class="no">二</span>政策篇</a>
+    <a href="#page-ch3"><span class="no">三</span>技术标准篇</a>
+    <a href="#page-ch4"><span class="no">四</span>民航绿色低碳专项</a>
   </nav>
   <div class="foot">内容检索整理截至 2026年10月<br>政策与标准以正式发布文本为准</div>
 </aside>
@@ -340,11 +335,11 @@
           <tr><th style="width:110px">层级（点击跳转）</th><th>文件名称</th><th style="width:150px">发文时间</th><th style="width:230px">发文机关（文号）</th></tr>
         </thead>
         <tbody>
-          <tr><td rowspan="2"><button class="lv-btn lv1" onclick="jump('sec-2-1')">顶层设计 <span class="arr">➜</span></button></td>
+          <tr><td rowspan="2"><a class="lv-btn lv1" href="#sec-2-1">顶层设计 <span class="arr">➜</span></a></td>
               <td>《关于完整准确全面贯彻新发展理念做好碳达峰碳中和工作的意见》</td><td>2021年9月</td><td>中共中央、国务院</td></tr>
           <tr><td>《2030年前碳达峰行动方案》</td><td>2021年10月</td><td>国务院（国发〔2021〕23号）</td></tr>
 
-          <tr><td rowspan="7"><button class="lv-btn lv2" onclick="jump('sec-2-2')">各部委 <span class="arr">➜</span></button></td>
+          <tr><td rowspan="7"><a class="lv-btn lv2" href="#sec-2-2">各部委 <span class="arr">➜</span></a></td>
               <td>《关于推动城乡建设绿色发展的意见》</td><td>2021年10月</td><td>中共中央办公厅、国务院办公厅</td></tr>
           <tr><td>《城乡建设领域碳达峰实施方案》</td><td>2022年</td><td>住房和城乡建设部、国家发展改革委（建标〔2022〕53号）</td></tr>
           <tr><td>《"十四五"建筑节能与绿色建筑发展规划》</td><td>2022年3月</td><td>住房和城乡建设部（建标〔2022〕24号）</td></tr>
@@ -353,14 +348,14 @@
           <tr><td>《关于开展零碳园区建设的通知》（附《国家级零碳园区建设指标体系（试行）》）</td><td>2025年6月</td><td>国家发展改革委等部门（发改环资〔2025〕910号）</td></tr>
           <tr><td>《"十五五"碳达峰行动方案》</td><td>2026年</td><td>国务院</td></tr>
 
-          <tr><td rowspan="5"><button class="lv-btn lv3" onclick="jump('sec-2-3-1')">广东省 <span class="arr">➜</span></button></td>
+          <tr><td rowspan="5"><a class="lv-btn lv3" href="#sec-2-3-1">广东省 <span class="arr">➜</span></a></td>
               <td>《广东省绿色建筑条例》</td><td>2020年11月通过，2021年1月施行</td><td>广东省人大常委会</td></tr>
           <tr><td>《广东省建筑节能与绿色建筑发展"十四五"规划》</td><td>2022年</td><td>广东省住房和城乡建设厅（粤建科〔2022〕56号）</td></tr>
           <tr><td>《广东省城乡建设领域碳达峰实施方案》</td><td>2023年</td><td>广东省住房和城乡建设厅等部门</td></tr>
           <tr><td>《广东省建筑节能增效行动计划（2023—2025）》</td><td>2023年4月</td><td>广东省住房和城乡建设厅等五部门</td></tr>
           <tr><td>《广东省2024—2025年节能降碳行动方案》</td><td>2024年11月</td><td>广东省人民政府（粤府〔2024〕80号）</td></tr>
 
-          <tr><td rowspan="8"><button class="lv-btn lv4" onclick="jump('sec-2-3-2')">深圳市 <span class="arr">➜</span></button></td>
+          <tr><td rowspan="8"><a class="lv-btn lv4" href="#sec-2-3-2">深圳市 <span class="arr">➜</span></a></td>
               <td>《深圳经济特区绿色建筑条例》</td><td>2022年3月通过，2022年7月施行</td><td>深圳市人大常委会</td></tr>
           <tr><td>《关于支持建筑领域绿色低碳发展若干措施》</td><td>2022年5月</td><td>深圳市住房和建设局（深建规〔2022〕4号）</td></tr>
           <tr><td>《深圳市碳达峰实施方案》</td><td>2023年9月</td><td>深圳市人民政府（深府〔2023〕84号）</td></tr>
@@ -370,7 +365,7 @@
           <tr><td>深圳市近零碳排放区试点建设系列文件（实施方案、深化方案及批次申报通知）</td><td>2021年起</td><td>深圳市生态环境局（深环〔2021〕212号、深环〔2025〕241号）</td></tr>
           <tr><td>深圳市超低能耗、近零能耗及零碳建筑试点示范项目申报通知</td><td>2023年起持续开展</td><td>深圳市住房和建设局</td></tr>
 
-          <tr><td rowspan="4"><button class="lv-btn lv5" onclick="jump('sec-2-4')">其他城市 <span class="arr">➜</span></button></td>
+          <tr><td rowspan="4"><a class="lv-btn lv5" href="#sec-2-4">其他城市 <span class="arr">➜</span></a></td>
               <td>北京市超低能耗建筑行动计划及配套标准政策</td><td>—</td><td>北京市</td></tr>
           <tr><td>上海市超低能耗建筑设计标准（公共建筑／居住建筑）</td><td>2025年</td><td>上海市</td></tr>
           <tr><td>河北、山东、黑龙江等省被动式超低能耗建筑地方标准及激励政策</td><td>—</td><td>各省住房城乡建设主管部门</td></tr>
@@ -383,7 +378,7 @@
       <div class="sec-head">
         <h3>2.1 政策顶层设计</h3>
         <span class="lv-tag" style="background:var(--lv1)">顶层设计</span>
-        <button class="back-tbl" onclick="jump('sec-tbl21')">↑ 返回表2-1</button>
+        <a class="back-tbl" href="#sec-tbl21">↑ 返回表2-1</a>
       </div>
       <div class="sec-body">
         <div class="policy">
@@ -414,7 +409,7 @@
       <div class="sec-head">
         <h3>2.2 各部门建筑领域配套政策</h3>
         <span class="lv-tag" style="background:var(--lv2)">各部委</span>
-        <button class="back-tbl" onclick="jump('sec-tbl21')">↑ 返回表2-1</button>
+        <a class="back-tbl" href="#sec-tbl21">↑ 返回表2-1</a>
       </div>
       <div class="sec-body">
         <div class="policy">
@@ -458,7 +453,7 @@
       <div class="sec-head">
         <h3>2.3 广东省及深圳市配套政策</h3>
         <span class="lv-tag" style="background:linear-gradient(90deg,var(--lv3),var(--lv4))">广东省 / 深圳市</span>
-        <button class="back-tbl" onclick="jump('sec-tbl21')">↑ 返回表2-1</button>
+        <a class="back-tbl" href="#sec-tbl21">↑ 返回表2-1</a>
       </div>
 
       <div class="sub-title" id="sec-2-3-1">2.3.1 广东省配套政策</div>
@@ -544,7 +539,7 @@
       <div class="sec-head">
         <h3>2.4 其他城市政策</h3>
         <span class="lv-tag" style="background:var(--lv5)">其他城市</span>
-        <button class="back-tbl" onclick="jump('sec-tbl21')">↑ 返回表2-1</button>
+        <a class="back-tbl" href="#sec-tbl21">↑ 返回表2-1</a>
       </div>
       <div class="sec-body">
         <p>北京、上海等城市在超低能耗规模化推广、激励工具创新方面先行探索，形成各具特点的政策与标准组合。</p>
@@ -571,7 +566,7 @@
       <div class="sec-head">
         <h3>2.5 考核政策</h3>
         <span class="lv-tag" style="background:#495057">考核制度</span>
-        <button class="back-tbl" onclick="jump('sec-tbl21')">↑ 返回表2-1</button>
+        <a class="back-tbl" href="#sec-tbl21">↑ 返回表2-1</a>
       </div>
       <div class="sec-body">
         <p>随着"碳达峰、碳中和"目标的持续推进，长期实施的能耗总量和强度双重控制（简称：能耗"双控"）政策的局限性开始显现，将可再生能源纳入能源消耗总量管控，一定程度上制约了清洁能源规模化发展。</p>
@@ -1166,7 +1161,7 @@
       <div class="tbl-wrap"><table>
         <thead><tr><th style="width:120px">类别（点击跳转）</th><th>文件名称</th><th style="width:150px">编号／文号</th><th style="width:250px">发布机关与时间</th></tr></thead>
         <tbody>
-          <tr><td rowspan="8"><button class="lv-btn lv2" onclick="jump('sec-4-3')">民航政策文件 <span class="arr">➜</span></button></td>
+          <tr><td rowspan="8"><a class="lv-btn lv2" href="#sec-4-3">民航政策文件 <span class="arr">➜</span></a></td>
               <td>《2030年前碳达峰行动方案》</td><td>国发〔2021〕23号</td><td>国务院｜2021年10月</td></tr>
           <tr><td>《建立健全碳达峰碳中和标准计量体系实施方案》</td><td>—</td><td>市场监管总局等11部门｜2022年10月</td></tr>
           <tr><td>《关于深入推进民航绿色发展的实施意见》</td><td>—</td><td>中国民用航空局｜2018年11月</td></tr>
@@ -1175,7 +1170,7 @@
           <tr><td>《"十四五"民用航空发展规划》</td><td>—</td><td>民航局、国家发展改革委、交通运输部｜2022年1月</td></tr>
           <tr><td>《"十四五"民航绿色发展专项规划》</td><td>—</td><td>中国民用航空局｜2022年</td></tr>
           <tr><td>《民用航空发展"十五五"规划》</td><td>—</td><td>民航局、国家发展改革委、交通运输部｜2026年8月</td></tr>
-          <tr><td rowspan="8"><button class="lv-btn lv5" onclick="jump('sec-4-4')">民航标准规范 <span class="arr">➜</span></button></td>
+          <tr><td rowspan="8"><a class="lv-btn lv5" href="#sec-4-4">民航标准规范 <span class="arr">➜</span></a></td>
               <td>《四型机场建设导则》</td><td>MH/T 5049-2020</td><td>中国民用航空局｜2020年12月1日实施</td></tr>
           <tr><td>《绿色机场规划导则》</td><td>AC-158-CA-2018-01</td><td>民航局机场司｜2018年印发（咨询通告）</td></tr>
           <tr><td>《民用机场智慧能源管理系统建设指南》</td><td>MH/T 5043-2019</td><td>中国民用航空局｜2020年2月1日施行</td></tr>
@@ -1191,7 +1186,7 @@
     <div class="section" id="sec-4-3">
       <div class="sec-head">
         <h3>4.3 民航绿色低碳发展政策</h3>
-        <button class="back-tbl" onclick="jump('sec-tbl41')">↑ 返回表4-1</button>
+        <a class="back-tbl" href="#sec-tbl41">↑ 返回表4-1</a>
       </div>
       <div class="sec-body">
         <p>民航领域绿色低碳政策经历从"节能减排"到"绿色发展"再到"双碳管理"的演进，政策要求逐步从倡导性走向评价约束性。国家层面政策明确机场在"双碳"工作中的定位与方向，民航行业政策逐年细化落实，本节按时间先后顺序归集与机场绿色低碳发展直接相关的政策文件，重点呈现各文件对机场建筑的要求及量化指标。</p>
@@ -1246,7 +1241,7 @@
     <div class="section" id="sec-4-4">
       <div class="sec-head">
         <h3>4.4 民航绿色低碳机场标准</h3>
-        <button class="back-tbl" onclick="jump('sec-tbl41')">↑ 返回表4-1</button>
+        <a class="back-tbl" href="#sec-tbl41">↑ 返回表4-1</a>
       </div>
       <div class="sec-body">
         <p>民航绿色低碳机场标准体系和考评体系逐步建立，制定实施了《四型机场建设导则》《绿色机场规划导则》《绿色机场评价导则》《民用机场绿色施工指南》《民用机场航站楼能效评价指南》《绿色航站楼标准》《零碳航站楼技术标准》等规范和标准。</p>
@@ -1402,92 +1397,27 @@
 
 </main>
 <script>
-  /* ===== 全部采用ES5语法，兼容老版微信X5/iOS浏览器 ===== */
-
-  /* 手机端目录抽屉 */
-  var mBtn = document.getElementById('mBtn'),
-      mMask = document.getElementById('mMask'),
-      mSidebar = document.querySelector('.sidebar');
-  function mToggle(open){
-    mSidebar.classList.toggle('open', open);
-    mMask.classList.toggle('show', open);
-  }
-  if(mBtn){ mBtn.onclick = function(){ mToggle(!mSidebar.classList.contains('open')); }; }
-  if(mMask){ mMask.onclick = function(){ mToggle(false); }; }
-
-  /* 章节切换 */
-  var navLinks = document.querySelectorAll('#nav a[data-ch]');
-  function showChapter(ch){
-    var pages = document.querySelectorAll('.page'), i;
-    for(i=0; i<pages.length; i++){ pages[i].classList.remove('active'); }
-    var page = document.getElementById('page-' + ch);
-    if(page){ page.classList.add('active'); }
+/* 本页所有导航/跳转均使用原生锚点(#id)，不依赖任何JS即可工作。
+   以下仅为滚动时的导航高亮装饰，异常时自动忽略。 */
+try{
+  var navLinks = document.querySelectorAll('#nav a[href^="#page-"]');
+  var allChips = document.querySelectorAll('.subnav .chip');
+  function onScroll(){
+    var i, cur = null, curChip = null;
     for(i=0; i<navLinks.length; i++){
-      navLinks[i].classList.toggle('active', navLinks[i].getAttribute('data-ch') === ch);
+      var t = document.getElementById(navLinks[i].getAttribute('href').slice(1));
+      if(t && t.getBoundingClientRect().top < 200){ cur = navLinks[i]; }
     }
-    window.scrollTo(0, 0);
+    for(i=0; i<navLinks.length; i++){ navLinks[i].classList.toggle('active', navLinks[i] === cur); }
+    for(i=0; i<allChips.length; i++){
+      var s = document.getElementById(allChips[i].getAttribute('href').slice(1));
+      if(s && s.getBoundingClientRect().top < 200){ curChip = allChips[i]; }
+    }
+    for(i=0; i<allChips.length; i++){ allChips[i].classList.toggle('on', allChips[i] === curChip); }
   }
-
-  /* 找到元素所属的章节页 */
-  function findPage(el){
-    var node = el;
-    while(node){
-      if(node.nodeType === 1 && node.classList && node.classList.contains('page')){ return node; }
-      node = node.parentNode;
-    }
-    return null;
-  }
-
-  /* 表格层级/类别 → 小节跳转（自动切换所在章，带高亮闪动） */
-  function jump(secId){
-    var el = document.getElementById(secId);
-    if(!el){ return; }
-    var page = findPage(el);
-    if(page && !page.classList.contains('active')){
-      var pages = document.querySelectorAll('.page'), i;
-      for(i=0; i<pages.length; i++){ pages[i].classList.remove('active'); }
-      page.classList.add('active');
-      for(i=0; i<navLinks.length; i++){
-        navLinks[i].classList.toggle('active', navLinks[i].getAttribute('data-ch') === page.id.replace('page-',''));
-      }
-    }
-    setTimeout(function(){
-      if(el.scrollIntoView){ el.scrollIntoView(); }
-      el.classList.remove('flash');
-      el.offsetWidth;
-      el.classList.add('flash');
-      setTimeout(function(){ el.classList.remove('flash'); }, 1600);
-    }, 0);
-  }
-
-  /* 顶部小节chips：点击滚动 */
-  var chips = document.querySelectorAll('.subnav .chip'), k;
-  for(k=0; k<chips.length; k++){
-    (function(c){
-      c.onclick = function(e){
-        if(e && e.preventDefault){ e.preventDefault(); }
-        jump(c.getAttribute('href').slice(1));
-        return false;
-      };
-    })(chips[k]);
-  }
-
-  /* 滚动时高亮当前小节 */
-  window.addEventListener('scroll', function(){
-    var activePage = null;
-    var all = document.querySelectorAll('.page'), i, j;
-    for(i=0; i<all.length; i++){
-      if(all[i].classList.contains('active')){ activePage = all[i]; break; }
-    }
-    if(!activePage){ return; }
-    var pageChips = activePage.querySelectorAll('.subnav .chip');
-    var cur = null;
-    for(j=0; j<pageChips.length; j++){
-      var el = document.getElementById(pageChips[j].getAttribute('href').slice(1));
-      if(el && el.getBoundingClientRect().top < 140){ cur = pageChips[j]; }
-    }
-    for(j=0; j<pageChips.length; j++){ pageChips[j].classList.toggle('on', pageChips[j] === cur); }
-  }, false);
+  window.addEventListener('scroll', onScroll, false);
+  onScroll();
+}catch(e){}
 </script>
 </body>
 </html>
