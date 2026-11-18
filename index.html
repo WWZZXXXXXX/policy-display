@@ -180,6 +180,17 @@
   .qa-input input:focus{border-color:var(--c-primary)}
   .qa-input button{border:none;background:var(--c-primary);color:#fff;border-radius:10px;padding:0 18px;font-size:13px;cursor:pointer;font-family:inherit}
   .qa-input button:hover{background:var(--c-primary-dark)}
+  .qa-input button:disabled{background:#9db5d6;cursor:not-allowed}
+  .qa-new{border:none;background:rgba(255,255,255,.14);color:#fff;height:28px;border-radius:8px;cursor:pointer;font-size:12px;padding:0 10px;font-family:inherit}
+  .qa-new:hover,.qa-close:hover{background:rgba(255,255,255,.26)}
+  .qa-msg.bot .qa-li{display:block;padding-left:1.1em;text-indent:-1.1em}
+  .qa-msg.bot .qa-h{display:block;margin-top:4px;color:var(--c-primary-dark)}
+  .qa-msg.bot code{background:#eef3fa;border-radius:4px;padding:0 4px;font-size:12px}
+  .qa-msg.bot .qa-cite{display:inline-block;margin:0 2px;font-size:11.5px;color:var(--c-primary);background:#e8f0fe;border:1px solid #c6dbfb;border-radius:5px;padding:0 6px;line-height:1.6;text-decoration:none;text-indent:0}
+  .qa-msg.bot .qa-cite:hover{background:var(--c-primary);color:#fff}
+  .qa-msg.bot .qa-note{display:block;margin-top:6px;font-size:11px;color:#8ea4bd}
+  .qa-cursor{display:inline-block;width:7px;height:14px;margin-left:2px;background:var(--c-primary);vertical-align:-2px;animation:qaBlink 1s steps(2) infinite}
+  @keyframes qaBlink{0%{opacity:1}100%{opacity:0}}
   @media (max-width:768px){
     .qa-panel{right:8px;left:8px;bottom:78px;width:auto;height:64vh;max-height:64vh;border-radius:14px}
     .qa-btn{right:14px;bottom:14px;width:52px;height:52px;font-size:23px}
@@ -1513,7 +1524,8 @@ try{
 <div class="qa-panel" id="qaPanel">
   <div class="qa-head">
     <div class="qa-ico">🤖</div>
-    <div class="qa-tt"><b>汇编智能问答</b><span>基于《超低能耗建筑政策与技术标准汇编》</span></div>
+    <div class="qa-tt"><b>汇编智能问答</b><span id="qaSub">基于《超低能耗建筑政策与技术标准汇编》</span></div>
+    <button class="qa-new" id="qaNew" title="清空对话，开始新话题">新对话</button>
     <button class="qa-close" id="qaClose" aria-label="关闭">✕</button>
   </div>
   <div class="qa-body" id="qaBody"></div>
@@ -1526,6 +1538,9 @@ try{
 
 <script>
 try{
+/* ================= DeepSeek 大模型接入：填写中转代理地址；留空则仅使用本地关键词检索 ================= */
+var QA_API = 'sk-49cd58b2c7f0454dbf5a4663b2320cce';
+
 /* ================= 知识库（内容摘自本汇编） ================= */
 var QA_KB = [
 {t:"超低能耗建筑的定义",q:["超低能耗","什么是超低能耗建筑"],a:"超低能耗建筑是近零能耗建筑的<b>初级表现形式</b>，室内环境参数与近零能耗建筑相同，能效指标略低：其建筑能耗水平应较GB 50189-2015等2016年节能标准<b>降低50％以上</b>（来源：GB/T 51350-2019）。",l:"#sec-c1-1",lt:"第一章 术语和定义"},
@@ -1820,10 +1835,10 @@ function qaAnswer(query){
   /* ① 标准编号直查（含字母/数字段） */
   var codeLike = /\d{3,}/.test(query) || /[a-zA-Z]{2,}/.test(query);
   var std = codeLike ? stdFind(query) : null;
-  if(std){ qaAddBot(stdDetail(std)); return; }
+  if(std){ return stdDetail(std); }
   /* ② 表2-1政策查询（文号/文件名） */
   var pol = polFind(query);
-  if(pol){ qaAddBot(polDetail(pol)); return; }
+  if(pol){ return polDetail(pol); }
   /* ③ 知识库强命中 */
   if(kbStrong){
     var html = r.hit.a;
@@ -1834,49 +1849,190 @@ function qaAnswer(query){
         html += '<a class="qa-ref" style="margin:2px 4px 0 0" href="javascript:void(0)" data-q="' + r.others[i].t + '">' + r.others[i].t + '</a>';
       }
     }
-    qaAddBot(html); return;
+    return html;
   }
   /* ④ 标准推荐（按领域筛选表格） */
   var rec = stdRecommend(query);
-  if(rec){ qaAddBot(stdList(rec)); return; }
+  if(rec){ return stdList(rec); }
   /* ⑤ 表2-1政策层级推荐 */
   var pr = polRecommend(query);
-  if(pr){ qaAddBot(pr); return; }
+  if(pr){ return pr; }
   /* ⑥ 知识库普通命中 */
   if(r){
     var html2 = r.hit.a;
     if(r.hit.l){ html2 += '<br><a class="qa-ref" href="' + r.hit.l + '">📍 ' + r.hit.lt + '</a>'; }
-    qaAddBot(html2); return;
+    return html2;
   }
-  /* ⑤ 兜底 */
-  qaAddBot('抱歉，暂未在汇编中找到直接答案。<br>建议：①输入<b>标准编号</b>查询（如 51350、228、5112、0061）；②说\"<b>推荐+领域</b>标准\"（如 推荐零碳标准、深圳节能标准）；③用术语关键词提问（如 零碳航站楼、资助）。<br><a class="qa-ref" href="#page-intro">📍 返回编制说明</a>');
+  /* ⑦ 兜底 */
+  return '抱歉，暂未在汇编中找到直接答案。<br>建议：①输入<b>标准编号</b>查询（如 51350、228、5112、0061）；②说\"<b>推荐+领域</b>标准\"（如 推荐零碳标准、深圳节能标准）；③用术语关键词提问（如 零碳航站楼、资助）。<br><a class="qa-ref" href="#page-intro">📍 返回编制说明</a>';
 }
+
+/* ================= DeepSeek 大模型问答 ================= */
+var qaHistory = [], qaBusy = false, qaReqId = 0, qaXhr = null, qaTitleCache = {};
+var QA_NOTE = '<span class="qa-note">内容由 DeepSeek 大模型依据汇编原文生成，政策与标准以正式发布文本为准</span>';
+
+function qaEsc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function qaTrim(s){ return String(s).replace(/^\s+|\s+$/g, ''); }
+function qaSecTitle(id){
+  if(qaTitleCache.hasOwnProperty(id)){ return qaTitleCache[id]; }
+  var el = document.getElementById(id), t = '';
+  if(el){
+    var h = el.className.indexOf('sub-title') > -1 ? el : (el.getElementsByTagName('h3')[0] || el.getElementsByTagName('h2')[0]);
+    t = qaTrim((h || el).textContent || (h || el).innerText || '').replace(/\s+/g, ' ');
+    if(t.length > 18){ t = t.substring(0, 18) + '…'; }
+  }
+  qaTitleCache[id] = t;
+  return t;
+}
+function qaCites(inner){
+  var ids = inner.match(/(sec|page)-[a-z0-9-]+/g), out = '', seen = {};
+  if(!ids){ return null; }
+  for(var i=0; i<ids.length; i++){
+    var t = seen[ids[i]] ? '' : qaSecTitle(ids[i]);
+    seen[ids[i]] = 1;
+    if(t){ out += '<a class="qa-cite" href="#' + ids[i] + '">📍 ' + qaEsc(t) + '</a>'; }
+  }
+  return out;
+}
+function qaInline(s){
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/`([^`]+)`/g, '<code>$1</code>');
+  s = s.replace(/【([^】]*)】/g, function(all, inner){ var c = qaCites(inner); return c === null ? all : c; });
+  s = s.replace(/\[#?((?:sec|page)-[a-z0-9-]+)\]/g, function(all, id){ return qaCites(id); });
+  return s;
+}
+function qaMd(src){
+  var lines = qaEsc(qaTrim(src)).replace(/\n{3,}/g, '\n\n').split('\n'), out = '', i, ln, m;
+  for(i=0; i<lines.length; i++){
+    ln = lines[i];
+    if(/^\s*\|?[\s:|-]*-{3,}[\s:|-]*$/.test(ln)){ continue; }
+    if(/^\s*\|/.test(ln)){ ln = ln.replace(/^\s*\|\s*|\s*\|\s*$/g, '').replace(/\s*\|\s*/g, '｜'); }
+    if((m = ln.match(/^\s*#{1,6}\s+(.*)$/))){ out += '<b class="qa-h">' + qaInline(m[1]) + '</b>'; continue; }
+    if((m = ln.match(/^\s*[-*•]\s+(.*)$/))){ out += '<span class="qa-li">· ' + qaInline(m[1]) + '</span>'; continue; }
+    if((m = ln.match(/^\s*(\d+)[.、)）](?!\d)\s*(.*)$/))){ out += '<span class="qa-li">' + m[1] + '. ' + qaInline(m[2]) + '</span>'; continue; }
+    out += qaInline(ln) + (i < lines.length - 1 ? '<br>' : '');
+  }
+  return out;
+}
+function qaAskAI(messages, onDelta, onDone, onFail){
+  var xhr = new XMLHttpRequest(), seen = 0, buf = '', text = '', ended = false;
+  function pump(){
+    var all = xhr.responseText || '', changed = false;
+    buf += all.substring(seen); seen = all.length;
+    var lines = buf.split('\n');
+    buf = lines.pop();
+    for(var i=0; i<lines.length; i++){
+      var ln = qaTrim(lines[i]);
+      if(ln.indexOf('data:') !== 0){ continue; }
+      var d = qaTrim(ln.substring(5));
+      if(d === '[DONE]'){ continue; }
+      try{
+        var j = JSON.parse(d), c = j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content;
+        if(c){ text += c; changed = true; }
+      }catch(e){}
+    }
+    if(changed){ onDelta(text); }
+  }
+  function fail(msg){ if(ended){ return; } ended = true; onFail(msg, text); }
+  xhr.open('POST', QA_API, true);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.timeout = 90000;
+  xhr.onprogress = function(){ if(xhr.status === 200){ pump(); } };
+  xhr.onload = function(){
+    if(ended){ return; }
+    if(xhr.status === 200){
+      pump();
+      if(text){ ended = true; onDone(text); } else { fail('模型未返回内容'); }
+      return;
+    }
+    var msg = '';
+    try{ msg = JSON.parse(xhr.responseText).error; }catch(e){}
+    fail(msg || ('HTTP ' + xhr.status));
+  };
+  xhr.onerror = function(){ fail('网络连接失败'); };
+  xhr.ontimeout = function(){ fail('请求超时'); };
+  xhr.send(JSON.stringify({ messages: messages }));
+  return xhr;
+}
+
+function qaSetBusy(b){ qaBusy = b; qaSend.disabled = b; qaSend.innerHTML = b ? '回答中' : '发送'; }
+function qaTyping(txt){
+  var t = document.createElement('div');
+  t.className = 'qa-typing'; t.innerHTML = txt;
+  qaBody.appendChild(t); qaScroll();
+  return t;
+}
+function qaRemove(n){ if(n && n.parentNode){ n.parentNode.removeChild(n); } }
 function qaSendMsg(){
-  var v = qaInput.value.replace(/^\s+|\s+$/g, '');
-  if(!v){ return; }
+  var v = qaTrim(qaInput.value);
+  if(!v || qaBusy){ return; }
   qaInput.value = '';
   qaAddUser(v);
-  var t = document.createElement('div');
-  t.className = 'qa-typing'; t.innerHTML = '正在检索汇编';
-  qaBody.appendChild(t); qaScroll();
-  setTimeout(function(){
-    qaBody.removeChild(t);
-    qaAnswer(v.toLowerCase());
-  }, 420);
+  if(!QA_API){
+    var t0 = qaTyping('正在检索汇编');
+    setTimeout(function(){ qaRemove(t0); qaAddBot(qaAnswer(v.toLowerCase())); }, 420);
+    return;
+  }
+  var id = ++qaReqId, typing = qaTyping('正在思考'), bubble = null;
+  var messages = qaHistory.slice(-8).concat([{ role: 'user', content: v }]);
+  qaQuick.style.display = 'none';
+  qaSetBusy(true);
+  qaXhr = qaAskAI(messages, function(text){
+    if(id !== qaReqId){ return; }
+    if(!bubble){ qaRemove(typing); bubble = qaAddBot(''); }
+    bubble.innerHTML = qaMd(text) + '<span class="qa-cursor"></span>';
+    qaScroll();
+  }, function(text){
+    if(id !== qaReqId){ return; }
+    if(!bubble){ qaRemove(typing); bubble = qaAddBot(''); }
+    bubble.innerHTML = qaMd(text) + QA_NOTE;
+    qaHistory.push({ role: 'user', content: v }, { role: 'assistant', content: text });
+    if(qaHistory.length > 8){ qaHistory = qaHistory.slice(-8); }
+    qaScroll(); qaSetBusy(false);
+  }, function(err, partial){
+    if(id !== qaReqId){ return; }
+    qaRemove(typing);
+    if(bubble && partial){
+      bubble.innerHTML = qaMd(partial) + '<span class="qa-note">⚠ 回答中断（' + qaEsc(err) + '），可点击“新对话”后重试</span>';
+    }else{
+      qaRemove(bubble);
+      qaAddBot(qaAnswer(v.toLowerCase()) + '<span class="qa-note">⚠ 大模型暂不可用（' + qaEsc(err) + '），以上为汇编本地检索结果</span>');
+    }
+    qaScroll(); qaSetBusy(false);
+  });
 }
 function qaGreet(){
   if(qaGreeted){ return; }
   qaGreeted = true;
-  qaAddBot('您好！我是<b>汇编智能问答助手</b>，已通读《超低能耗建筑政策与技术标准汇编》全文四章内容。<br>您可以：<br>①查<b>标准编号</b>——输入 51350、SJG 228、5112、0061 即返详情；<br>②查<b>政策文件</b>——如"深圳市政策有哪些""国发〔2021〕23号"；<br>③<b>推荐</b>——如"推荐零碳标准"；<br>④问<b>术语与量化指标</b>——如"零碳航站楼""深圳资助标准"。');
-  var seeds = ['深圳市政策有哪些', '推荐零碳标准', '51350', '零碳航站楼分级指标', '1+N政策文件一览', '深圳超低能耗资助标准'];
+  var seeds;
+  if(QA_API){
+    qaAddBot('您好！我是<b>汇编智能问答助手</b>，已接入 <b>DeepSeek 大模型</b>并通读《超低能耗建筑政策与技术标准汇编》全文。<br>您可以直接用自然语言提问，支持<b>连续追问</b>，回答会标注<b>出处章节</b>，点击即可跳转原文。');
+    seeds = ['超低能耗、近零能耗、零能耗建筑有什么区别？', '深圳机场T3航站楼做近零碳改造应参考哪些标准？', '深圳超低能耗项目能拿到多少资助？', '零碳航站楼的分级指标是什么？', '广东和北方的超低能耗技术路线有何不同？', '1+N政策体系是什么？'];
+  }else{
+    qaAddBot('您好！我是<b>汇编智能问答助手</b>，已通读《超低能耗建筑政策与技术标准汇编》全文四章内容。<br>您可以：<br>①查<b>标准编号</b>——输入 51350、SJG 228、5112、0061 即返详情；<br>②查<b>政策文件</b>——如"深圳市政策有哪些""国发〔2021〕23号"；<br>③<b>推荐</b>——如"推荐零碳标准"；<br>④问<b>术语与量化指标</b>——如"零碳航站楼""深圳资助标准"。');
+    seeds = ['深圳市政策有哪些', '推荐零碳标准', '51350', '零碳航站楼分级指标', '1+N政策文件一览', '深圳超低能耗资助标准'];
+  }
   qaQuick.innerHTML = '';
+  qaQuick.style.display = '';
   for(var i=0; i<seeds.length; i++){
     var b = document.createElement('button');
     b.appendChild(document.createTextNode(seeds[i]));
-    b.onclick = function(){ qaInput.value = this.innerHTML; qaSendMsg(); };
+    b.onclick = function(){ qaInput.value = this.textContent || this.innerText; qaSendMsg(); };
     qaQuick.appendChild(b);
   }
 }
+if(QA_API){
+  document.getElementById('qaSub').innerHTML = 'DeepSeek 大模型 · 基于汇编全文作答';
+  qaInput.placeholder = '直接提问，如：深圳机场改造应参考哪些标准？';
+}
+document.getElementById('qaNew').onclick = function(){
+  qaReqId++;
+  if(qaXhr){ try{ qaXhr.abort(); }catch(e){} qaXhr = null; }
+  qaHistory = [];
+  qaSetBusy(false);
+  qaBody.innerHTML = '';
+  qaGreeted = false;
+  qaGreet();
+};
 qaBtn.onclick = function(){
   var opened = qaPanel.className.indexOf('open') > -1;
   if(opened){ qaPanel.className = 'qa-panel'; } else { qaPanel.className = 'qa-panel open'; qaGreet(); qaInput.focus(); }
@@ -1891,7 +2047,7 @@ qaBody.onclick = function(e){
   if(n && n.getAttribute && n.getAttribute('data-q')){
     qaInput.value = n.getAttribute('data-q'); qaSendMsg(); return;
   }
-  if(n && n.className === 'qa-ref' && n.getAttribute('href') && n.getAttribute('href').charAt(0) === '#'){
+  if(n && (n.className === 'qa-ref' || n.className === 'qa-cite') && n.getAttribute('href') && n.getAttribute('href').charAt(0) === '#'){
     if(window.innerWidth <= 768){ qaPanel.className = 'qa-panel'; }
   }
 };
