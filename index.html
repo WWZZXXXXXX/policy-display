@@ -197,6 +197,9 @@
   .qa-msg.bot .qa-note{display:block;margin-top:6px;font-size:11px;color:#8ea4bd}
   .qa-cursor{display:inline-block;width:7px;height:14px;margin-left:2px;background:var(--c-primary);vertical-align:-2px;animation:qaBlink 1s steps(2) infinite}
   @keyframes qaBlink{0%{opacity:1}100%{opacity:0}}
+  .qa-copy{display:inline-block;margin-top:6px;font-size:11px;color:#8ea4bd;background:#fff;border:1px solid #dbe5f2;border-radius:6px;padding:2px 9px;cursor:pointer;font-family:inherit;line-height:1.4}
+  .qa-copy:hover{color:var(--c-primary);border-color:var(--c-primary)}
+  .qa-msg.bot .qa-copy.qa-copying{color:var(--c-primary);border-color:var(--c-primary)}
   @media (max-width:768px){
     .qa-panel{right:8px;left:8px;bottom:78px;width:auto;height:64vh;max-height:64vh;border-radius:14px}
     .qa-grip,.qa-edge{display:none}
@@ -1837,8 +1840,48 @@ function qaAddBot(html){
   var d = document.createElement('div');
   d.className = 'qa-msg bot';
   d.innerHTML = html;
-  qaBody.appendChild(d); qaScroll();
+  qaBody.appendChild(d);
+  qaAttachCopy(d);
+  qaScroll();
   return d;
+}
+function qaPlain(d){
+  var c = d.cloneNode(true), nls = c.getElementsByTagName('*'), i;
+  for(i = nls.length - 1; i >= 0; i--){
+    if(nls[i].className === 'qa-note' || nls[i].className === 'qa-copy' || nls[i].className === 'qa-cursor'){ nls[i].parentNode.removeChild(nls[i]); }
+  }
+  return (c.innerText || c.textContent || '').replace(/\n{3,}/g, '\n\n').replace(/^\s+|\s+$/g, '');
+}
+function qaAttachCopy(d){
+  if(d._qaCopy){ d.appendChild(d._qaCopy); return; }
+  var b = document.createElement('button');
+  b.className = 'qa-copy';
+  b.type = 'button';
+  b.appendChild(document.createTextNode('复制'));
+  b.onclick = function(ev){
+    var e = ev || window.event;
+    if(e && e.stopPropagation){ e.stopPropagation(); } else if(window.event){ window.event.cancelBubble = true; }
+    var txt = qaPlain(d);
+    function ok(){ b.innerHTML = '已复制'; setTimeout(function(){ b.innerHTML = '复制'; }, 1600); }
+    function fallback(){
+      try{
+        var ta = document.createElement('textarea');
+        ta.value = txt;
+        ta.style.position = 'fixed'; ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        ok();
+      }catch(e2){ b.innerHTML = '复制失败'; setTimeout(function(){ b.innerHTML = '复制'; }, 1600); }
+    }
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(ok, fallback); return; }
+    }catch(e3){}
+    fallback();
+  };
+  d._qaCopy = b;
+  d.appendChild(b);
 }
 function qaAnswer(query){
   var r = qaFind(query);
@@ -1879,8 +1922,25 @@ function qaAnswer(query){
 }
 
 /* ================= DeepSeek 大模型问答 ================= */
-var qaHistory = [], qaBusy = false, qaReqId = 0, qaXhr = null, qaTitleCache = {};
+var qaHistory = [], qaLog = [], qaBusy = false, qaReqId = 0, qaXhr = null, qaTitleCache = {};
 var QA_NOTE = '<span class="qa-note">内容由 DeepSeek 大模型依据汇编原文生成，政策与标准以正式发布文本为准</span>';
+var QA_STORE_KEY = 'qaChat_v1';
+function qaStoreLoad(){
+  try{ var s = localStorage.getItem(QA_STORE_KEY), a = s ? JSON.parse(s) : []; return (a && a.length) ? a : []; }catch(e){ return []; }
+}
+function qaStoreSave(){ try{ localStorage.setItem(QA_STORE_KEY, JSON.stringify(qaLog.slice(-30))); }catch(e){} }
+function qaStoreClear(){ try{ localStorage.removeItem(QA_STORE_KEY); }catch(e){} }
+function qaErrZh(err){
+  var s = String(err);
+  if(s.indexOf('401') > -1){ return '接口密钥失效，请联系管理员'; }
+  if(s.indexOf('402') > -1){ return '服务余额不足，请联系管理员充值'; }
+  if(s.indexOf('403') > -1){ return '服务暂时无法访问，请稍后再试'; }
+  if(s.indexOf('429') > -1 || s.indexOf('频繁') > -1){ return '提问太频繁，请稍等片刻再试'; }
+  if(s.indexOf('50') > -1 || s.indexOf('DeepSeek') > -1){ return '模型服务繁忙，请稍后重试'; }
+  if(s.indexOf('超时') > -1){ return '网络超时，请重试'; }
+  if(s.indexOf('网络') > -1){ return '网络连接失败，请检查网络后重试'; }
+  return s;
+}
 
 function qaEsc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function qaTrim(s){ return String(s).replace(/^\s+|\s+$/g, ''); }
@@ -1960,12 +2020,13 @@ function qaAskAI(messages, onDelta, onDone, onFail){
     fail(msg || ('HTTP ' + xhr.status));
   };
   xhr.onerror = function(){ fail('网络连接失败'); };
+  xhr.onabort = function(){ fail('STOPPED'); };
   xhr.ontimeout = function(){ fail('请求超时'); };
   xhr.send(JSON.stringify({ messages: messages }));
   return xhr;
 }
 
-function qaSetBusy(b){ qaBusy = b; qaSend.disabled = b; qaSend.innerHTML = b ? '回答中' : '发送'; }
+function qaSetBusy(b){ qaBusy = b; qaSend.disabled = false; qaSend.innerHTML = b ? '停止' : '发送'; }
 function qaTyping(txt){
   var t = document.createElement('div');
   t.className = 'qa-typing'; t.innerHTML = txt;
@@ -1991,22 +2052,41 @@ function qaSendMsg(){
     if(id !== qaReqId){ return; }
     if(!bubble){ qaRemove(typing); bubble = qaAddBot(''); }
     bubble.innerHTML = qaMd(text) + '<span class="qa-cursor"></span>';
+    qaAttachCopy(bubble);
     qaScroll();
   }, function(text){
     if(id !== qaReqId){ return; }
     if(!bubble){ qaRemove(typing); bubble = qaAddBot(''); }
     bubble.innerHTML = qaMd(text) + QA_NOTE;
+    qaAttachCopy(bubble);
     qaHistory.push({ role: 'user', content: v }, { role: 'assistant', content: text });
     if(qaHistory.length > 8){ qaHistory = qaHistory.slice(-8); }
+    qaLog.push({ r: 'u', t: v }, { r: 'a', t: text });
+    qaStoreSave();
     qaScroll(); qaSetBusy(false);
   }, function(err, partial){
     if(id !== qaReqId){ return; }
     qaRemove(typing);
+    if(err === 'STOPPED'){
+      if(bubble && partial){
+        bubble.innerHTML = qaMd(partial) + '<span class="qa-note">⏹ 已停止生成</span>';
+        qaAttachCopy(bubble);
+        qaHistory.push({ role: 'user', content: v }, { role: 'assistant', content: partial });
+        if(qaHistory.length > 8){ qaHistory = qaHistory.slice(-8); }
+        qaLog.push({ r: 'u', t: v }, { r: 'a', t: partial });
+        qaStoreSave();
+      }else{
+        qaRemove(bubble);
+      }
+      qaScroll(); qaSetBusy(false);
+      return;
+    }
     if(bubble && partial){
-      bubble.innerHTML = qaMd(partial) + '<span class="qa-note">⚠ 回答中断（' + qaEsc(err) + '），可点击“新对话”后重试</span>';
+      bubble.innerHTML = qaMd(partial) + '<span class="qa-note">⚠ 回答中断（' + qaEsc(qaErrZh(err)) + '），可点击“新对话”后重试</span>';
+      qaAttachCopy(bubble);
     }else{
       qaRemove(bubble);
-      qaAddBot(qaAnswer(v.toLowerCase()) + '<span class="qa-note">⚠ 大模型暂不可用（' + qaEsc(err) + '），以上为汇编本地检索结果</span>');
+      qaAddBot(qaAnswer(v.toLowerCase()) + '<span class="qa-note">⚠ 大模型暂不可用（' + qaEsc(qaErrZh(err)) + '），以上为汇编本地检索结果</span>');
     }
     qaScroll(); qaSetBusy(false);
   });
@@ -2016,6 +2096,22 @@ function qaGreet(){
   qaGreeted = true;
   var seeds;
   if(QA_API){
+    var saved = qaStoreLoad();
+    if(saved.length){
+      var i;
+      qaLog = saved.slice();
+      qaHistory = [];
+      for(i = 0; i < saved.length; i++){
+        if(saved[i].r === 'u'){ qaAddUser(saved[i].t); }
+        else { qaAddBot(qaMd(saved[i].t)); }
+        qaHistory.push({ role: saved[i].r === 'u' ? 'user' : 'assistant', content: saved[i].t });
+      }
+      if(qaHistory.length > 8){ qaHistory = qaHistory.slice(-8); }
+      qaQuick.innerHTML = '';
+      qaQuick.style.display = 'none';
+      qaScroll();
+      return;
+    }
     qaAddBot('您好！我是<b>绿建智汇</b>平台的智能问答助手，已接入 <b>DeepSeek 大模型</b>并通读《超低能耗建筑政策与技术标准汇编》全文。<br>您可以直接用自然语言提问，支持<b>连续追问</b>，回答会标注<b>出处章节</b>，点击即可跳转原文。');
     seeds = ['超低能耗、近零能耗、零能耗建筑有什么区别？', '深圳机场T3航站楼做近零碳改造应参考哪些标准？', '深圳超低能耗项目能拿到多少资助？', '零碳航站楼的分级指标是什么？', '广东和北方的超低能耗技术路线有何不同？', '1+N政策体系是什么？'];
   }else{
@@ -2073,6 +2169,8 @@ document.getElementById('qaNew').onclick = function(){
   qaReqId++;
   if(qaXhr){ try{ qaXhr.abort(); }catch(e){} qaXhr = null; }
   qaHistory = [];
+  qaLog = [];
+  qaStoreClear();
   qaSetBusy(false);
   qaBody.innerHTML = '';
   qaGreeted = false;
@@ -2083,7 +2181,13 @@ qaBtn.onclick = function(){
   if(opened){ qaPanel.className = 'qa-panel'; } else { qaPanel.className = 'qa-panel open'; qaGreet(); qaInput.focus(); }
 };
 qaClose.onclick = function(){ qaPanel.className = 'qa-panel'; };
-qaSend.onclick = qaSendMsg;
+qaSend.onclick = function(){
+  if(qaBusy){
+    if(qaXhr){ try{ qaXhr.abort(); }catch(e){} }
+    return;
+  }
+  qaSendMsg();
+};
 qaInput.onkeydown = function(e){ if(e && e.keyCode === 13){ qaSendMsg(); } };
 qaInput.onfocus = function(){ if(window.innerWidth <= 768){ qaPanel.style.height = '46vh'; } };
 qaInput.onblur = function(){ qaPanel.style.height = ''; };
