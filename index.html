@@ -156,7 +156,11 @@
   .qa-btn{position:fixed;right:24px;bottom:24px;z-index:90;width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,#0e5fd8,#0d9488);color:#fff;font-size:26px;box-shadow:0 6px 20px rgba(14,95,216,.4);display:flex;align-items:center;justify-content:center;transition:.2s;font-family:inherit}
   .qa-btn:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(14,95,216,.5)}
   .qa-btn .qa-dot{position:absolute;top:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:#ffd43b;border:2px solid #fff}
-  .qa-panel{display:none;position:fixed;right:24px;bottom:92px;z-index:90;width:400px;height:560px;min-width:320px;min-height:420px;max-width:calc(100vw - 48px);max-height:calc(100vh - 130px);background:#f6f9fd;border-radius:16px;box-shadow:0 12px 40px rgba(11,37,69,.28);border:1px solid #dbe5f2;flex-direction:column;overflow:hidden;resize:both}
+  .qa-panel{display:none;position:fixed;right:24px;bottom:92px;z-index:90;width:400px;height:560px;min-width:320px;min-height:420px;max-width:calc(100vw - 48px);max-height:calc(100vh - 130px);background:#f6f9fd;border-radius:16px;box-shadow:0 12px 40px rgba(11,37,69,.28);border:1px solid #dbe5f2;flex-direction:column;overflow:hidden}
+  .qa-grip{position:absolute;left:1px;top:1px;width:18px;height:18px;cursor:nwse-resize;z-index:6;opacity:.5}
+  .qa-grip::before{content:'';position:absolute;left:4px;top:4px;width:9px;height:9px;border-left:2px solid #7e9cbd;border-top:2px solid #7e9cbd;border-top-left-radius:3px}
+  .qa-grip:hover{opacity:1}
+  .qa-grip::after{content:'';position:absolute;left:9px;top:9px;width:9px;height:9px;border-left:2px solid #7e9cbd;border-top:2px solid #7e9cbd;border-top-left-radius:2px;opacity:.6}
   .qa-panel{width:min(400px,calc(100vw - 24px));height:min(620px,76vh)}
   .qa-panel.open{display:flex}
   .qa-head{background:linear-gradient(135deg,#0b2545,#0e5fd8);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:10px}
@@ -193,7 +197,8 @@
   .qa-cursor{display:inline-block;width:7px;height:14px;margin-left:2px;background:var(--c-primary);vertical-align:-2px;animation:qaBlink 1s steps(2) infinite}
   @keyframes qaBlink{0%{opacity:1}100%{opacity:0}}
   @media (max-width:768px){
-    .qa-panel{right:8px;left:8px;bottom:78px;width:auto;height:64vh;max-height:64vh;border-radius:14px;resize:none}
+    .qa-panel{right:8px;left:8px;bottom:78px;width:auto;height:64vh;max-height:64vh;border-radius:14px}
+    .qa-grip{display:none}
     .qa-btn{right:14px;bottom:14px;width:52px;height:52px;font-size:23px}
     .qa-head{padding:10px 14px}
     .qa-head .qa-ico{width:30px;height:30px;font-size:16px}
@@ -1524,6 +1529,7 @@ try{
 <!-- ===== 智能问答窗口 ===== -->
 <button class="qa-btn" id="qaBtn" aria-label="智能问答"><span>💬</span><span class="qa-dot"></span></button>
 <div class="qa-panel" id="qaPanel">
+  <div class="qa-grip" id="qaGrip" title="拖拽调整窗口大小"></div>
   <div class="qa-head">
     <div class="qa-ico">🤖</div>
     <div class="qa-tt"><b>绿建智汇 · 智能问答</b><span id="qaSub">基于《超低能耗建筑政策与技术标准汇编》</span></div>
@@ -2026,6 +2032,36 @@ if(QA_API){
   document.getElementById('qaSub').innerHTML = 'DeepSeek 大模型 · 基于汇编全文作答';
   qaInput.placeholder = '直接提问，如：深圳机场改造应参考哪些标准？';
 }
+/* 左上角手柄拖拽缩放（窗口锚定右下角，向左上拖为放大） */
+(function(){
+  var grip = document.getElementById('qaGrip');
+  function onDown(e){
+    if(e.button && e.button !== 0){ return; }
+    var r = qaPanel.getBoundingClientRect();
+    var sx = e.clientX, sy = e.clientY, sw = r.width, sh = r.height;
+    function onMove(ev){
+      var w = Math.max(320, Math.min(sw + (sx - ev.clientX), window.innerWidth - 40));
+      var h = Math.max(420, Math.min(sh + (sy - ev.clientY), window.innerHeight - 140));
+      qaPanel.style.width = w + 'px';
+      qaPanel.style.height = h + 'px';
+      if(ev.preventDefault){ ev.preventDefault(); }
+    }
+    function onUp(){
+      if(document.removeEventListener){ document.removeEventListener('mousemove', onMove, false); document.removeEventListener('mouseup', onUp, false); }
+      else { document.detachEvent('onmousemove', onMove); document.detachEvent('onmouseup', onUp); }
+      document.body.style.userSelect = '';
+      qaScroll();
+    }
+    if(document.addEventListener){ document.addEventListener('mousemove', onMove, false); document.addEventListener('mouseup', onUp, false); }
+    else { document.attachEvent('onmousemove', onMove); document.attachEvent('onmouseup', onUp); }
+    document.body.style.userSelect = 'none';
+    if(e.preventDefault){ e.preventDefault(); }
+  }
+  if(grip){
+    if(grip.addEventListener){ grip.addEventListener('mousedown', onDown, false); }
+    else { grip.attachEvent('onmousedown', onDown); }
+  }
+})();
 document.getElementById('qaNew').onclick = function(){
   qaReqId++;
   if(qaXhr){ try{ qaXhr.abort(); }catch(e){} qaXhr = null; }
