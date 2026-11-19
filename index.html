@@ -157,10 +157,8 @@
   .qa-btn:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(14,95,216,.5)}
   .qa-btn .qa-dot{position:absolute;top:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:#ffd43b;border:2px solid #fff}
   .qa-panel{display:none;position:fixed;right:24px;bottom:92px;z-index:90;width:400px;height:560px;min-width:320px;min-height:420px;max-width:calc(100vw - 48px);max-height:calc(100vh - 130px);background:#f6f9fd;border-radius:16px;box-shadow:0 12px 40px rgba(11,37,69,.28);border:1px solid #dbe5f2;flex-direction:column;overflow:hidden}
-  .qa-grip{position:absolute;left:1px;top:1px;width:18px;height:18px;cursor:nwse-resize;z-index:6;opacity:.5}
-  .qa-grip::before{content:'';position:absolute;left:4px;top:4px;width:9px;height:9px;border-left:2px solid #7e9cbd;border-top:2px solid #7e9cbd;border-top-left-radius:3px}
-  .qa-grip:hover{opacity:1}
-  .qa-grip::after{content:'';position:absolute;left:9px;top:9px;width:9px;height:9px;border-left:2px solid #7e9cbd;border-top:2px solid #7e9cbd;border-top-left-radius:2px;opacity:.6}
+  .qa-grip{position:absolute;left:1px;top:1px;width:18px;height:18px;cursor:nwse-resize;z-index:6;opacity:.55;background:repeating-linear-gradient(135deg,rgba(122,148,178,.85) 0 1.5px,transparent 1.5px 4.5px);border-radius:0 0 10px 0}
+  .qa-grip:hover{opacity:1;background:repeating-linear-gradient(135deg,rgba(94,124,158,.95) 0 1.5px,transparent 1.5px 4.5px)}
   .qa-panel{width:min(400px,calc(100vw - 24px));height:min(620px,76vh)}
   .qa-panel.open{display:flex}
   .qa-head{background:linear-gradient(135deg,#0b2545,#0e5fd8);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:10px}
