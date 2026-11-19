@@ -1552,7 +1552,7 @@ try{
 
 <script>
 try{
-/* ================= DeepSeek 大模型接入：填写中转代理地址；留空则仅使用本地关键词检索 ================= */
+/* ================= AI 大模型接入：填写中转代理地址；留空则仅使用本地关键词检索 ================= */
 var QA_API = 'https://policy-qa-bdsqrgoocb.cn-hongkong.fcapp.run';
 
 /* ================= 知识库（内容摘自本汇编） ================= */
@@ -1921,9 +1921,9 @@ function qaAnswer(query){
   return '抱歉，暂未在汇编中找到直接答案。<br>建议：①输入<b>标准编号</b>查询（如 51350、228、5112、0061）；②说\"<b>推荐+领域</b>标准\"（如 推荐零碳标准、深圳节能标准）；③用术语关键词提问（如 零碳航站楼、资助）。<br><a class="qa-ref" href="#page-intro">📍 返回编制说明</a>';
 }
 
-/* ================= DeepSeek 大模型问答 ================= */
+/* ================= AI 大模型问答 ================= */
 var qaHistory = [], qaLog = [], qaBusy = false, qaReqId = 0, qaXhr = null, qaTitleCache = {};
-var QA_NOTE = '<span class="qa-note">内容由 DeepSeek 大模型依据汇编原文生成，政策与标准以正式发布文本为准</span>';
+var QA_NOTE = '<span class="qa-note">内容由 AI 大模型依据汇编原文生成，政策与标准以正式发布文本为准</span>';
 var QA_STORE_KEY = 'qaChat_v1';
 function qaStoreLoad(){
   try{ var s = localStorage.getItem(QA_STORE_KEY), a = s ? JSON.parse(s) : []; return (a && a.length) ? a : []; }catch(e){ return []; }
@@ -2112,7 +2112,7 @@ function qaGreet(){
       qaScroll();
       return;
     }
-    qaAddBot('您好！我是<b>绿建智汇</b>平台的智能问答助手，已接入 <b>DeepSeek 大模型</b>并通读《超低能耗建筑政策与技术标准汇编》全文。<br>您可以直接用自然语言提问，支持<b>连续追问</b>，回答会标注<b>出处章节</b>，点击即可跳转原文。');
+    qaAddBot('您好！我是<b>绿建智汇</b>平台的智能问答助手，已接入 <b>AI 大模型</b>并通读《超低能耗建筑政策与技术标准汇编》全文。<br>您可以直接用自然语言提问，支持<b>连续追问</b>，回答会标注<b>出处章节</b>，点击即可跳转原文。');
     seeds = ['超低能耗、近零能耗、零能耗建筑有什么区别？', '深圳机场T3航站楼做近零碳改造应参考哪些标准？', '深圳超低能耗项目能拿到多少资助？', '零碳航站楼的分级指标是什么？', '广东和北方的超低能耗技术路线有何不同？', '1+N政策体系是什么？'];
   }else{
     qaAddBot('您好！我是<b>绿建智汇</b>平台的智能问答助手，已通读《超低能耗建筑政策与技术标准汇编》全文四章内容。<br>您可以：<br>①查<b>标准编号</b>——输入 51350、SJG 228、5112、0061 即返详情；<br>②查<b>政策文件</b>——如"深圳市政策有哪些""国发〔2021〕23号"；<br>③<b>推荐</b>——如"推荐零碳标准"；<br>④问<b>术语与量化指标</b>——如"零碳航站楼""深圳资助标准"。');
@@ -2128,7 +2128,7 @@ function qaGreet(){
   }
 }
 if(QA_API){
-  document.getElementById('qaSub').innerHTML = 'DeepSeek 大模型 · 基于汇编全文作答';
+  document.getElementById('qaSub').innerHTML = 'AI 大模型 · 基于汇编全文作答';
   qaInput.placeholder = '直接提问，如：深圳机场改造应参考哪些标准？';
 }
 /* 左上角手柄与上/左边缘拖拽缩放（窗口锚定右下角，向上/向左拖为放大） */
