@@ -186,10 +186,10 @@
   .qa-input{display:flex;gap:8px;padding:10px 12px 12px;background:#f6f9fd}
   .qa-input input{flex:1;border:1px solid #cdd9ea;border-radius:10px;padding:9px 12px;font-size:13px;font-family:inherit;outline:none;background:#fff}
   .qa-input input:focus{border-color:var(--c-primary)}
-  .qa-input button{border:none;background:var(--c-primary);color:#fff;border-radius:10px;padding:0 18px;font-size:13px;cursor:pointer;font-family:inherit}
+  .qa-input button{border:none;background:var(--c-primary);color:#fff;border-radius:10px;padding:0 14px;font-size:16px;line-height:1;cursor:pointer;font-family:inherit}
   .qa-input button:hover{background:var(--c-primary-dark)}
   .qa-input button:disabled{background:#9db5d6;cursor:not-allowed}
-  .qa-new{border:none;background:rgba(255,255,255,.14);color:#fff;height:28px;border-radius:8px;cursor:pointer;font-size:12px;padding:0 10px;font-family:inherit}
+  .qa-new{border:none;background:rgba(255,255,255,.14);color:#fff;height:28px;border-radius:8px;cursor:pointer;font-size:14px;padding:0 8px;font-family:inherit;display:inline-flex;align-items:center;justify-content:center}
   .qa-new:hover,.qa-close:hover{background:rgba(255,255,255,.26)}
   .qa-msg.bot .qa-li{display:block;padding-left:1.1em;text-indent:-1.1em}
   .qa-msg.bot .qa-h{display:block;margin-top:4px;color:var(--c-primary-dark)}
@@ -202,6 +202,27 @@
   .qa-copy{display:inline-block;margin-top:6px;font-size:11px;color:#8ea4bd;background:#fff;border:1px solid #dbe5f2;border-radius:6px;padding:2px 9px;cursor:pointer;font-family:inherit;line-height:1.4}
   .qa-copy:hover{color:var(--c-primary);border-color:var(--c-primary)}
   .qa-msg.bot .qa-copy.qa-copying{color:var(--c-primary);border-color:var(--c-primary)}
+  /* 历史会话 */
+  .qa-hist-btn{border:none;background:rgba(255,255,255,.14);color:#fff;height:28px;border-radius:8px;cursor:pointer;font-size:14px;padding:0 8px;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center}
+  .qa-hist-btn:hover{background:rgba(255,255,255,.26)}
+  .qa-hist-panel{display:none;position:absolute;left:0;right:0;top:62px;bottom:0;z-index:8;background:#f6f9fd;flex-direction:column;border-top:1px solid #dbe5f2}
+  .qa-hist-panel.open{display:flex}
+  .qa-hist-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px;font-size:13px;color:#334e6b}
+  .qa-hist-head span{font-size:11px;color:#8ea4bd}
+  .qa-hist-list{flex:1;overflow-y:auto;padding:2px 10px 8px;display:flex;flex-direction:column;gap:6px}
+  .qa-hist-item{border:1px solid #dbe5f2;background:#fff;border-radius:10px;padding:9px 10px;cursor:pointer;transition:.15s}
+  .qa-hist-item:hover{border-color:#9dbdea;background:#f2f7ff}
+  .qa-hist-item.on{border-color:var(--c-primary);background:#eef5ff}
+  .qa-hist-t{font-size:12.5px;color:#2c3e50;line-height:1.5;word-break:break-all;cursor:pointer}
+  .qa-hist-m{margin-top:3px;font-size:11px;color:#8ea4bd;display:flex;align-items:center;gap:8px}
+  .qa-hist-ops{margin-left:auto;display:flex;gap:4px}
+  .qa-hist-ops button{border:none;background:transparent;color:#8ea4bd;font-size:12px;cursor:pointer;padding:2px 5px;border-radius:5px;font-family:inherit;display:inline-flex;align-items:center;justify-content:center}
+  .qa-hist-ops button:hover{background:#e5eefb;color:var(--c-primary)}
+  .qa-hist-empty{color:#8ea4bd;font-size:12px;text-align:center;padding:30px 10px;line-height:1.8}
+  .qa-hist-foot{display:flex;gap:8px;padding:10px 12px 12px;border-top:1px solid #e3ebf5}
+  .qa-hist-foot button{flex:1;border:1px solid #c6dbfb;background:#fff;color:var(--c-primary);border-radius:8px;padding:6px 0;font-size:16px;line-height:1.2;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center}
+  .qa-hist-foot button:hover{background:var(--c-primary);color:#fff}
+  .qa-hist-edit{width:100%;font-size:12.5px;padding:4px 6px;border:1px solid var(--c-primary);border-radius:6px;font-family:inherit;box-sizing:border-box}
   @media (max-width:768px){
     .qa-panel{right:8px;left:8px;bottom:78px;width:auto;height:64vh;max-height:64vh;border-radius:14px}
     .qa-grip,.qa-edge{display:none}
@@ -213,8 +234,9 @@
     .qa-body{padding:10px}
     .qa-msg{font-size:13px;max-width:94%}
     .qa-input input{font-size:16px}
-    .qa-input button{font-size:14px}
+    .qa-input button{font-size:17px}
     .qa-quick button{font-size:12px;padding:5px 12px}
+    .qa-hist-panel{top:50px}
   }
 </style>
 </head>
@@ -1543,14 +1565,20 @@ try{
   <div class="qa-head">
     <div class="qa-ico">🤖</div>
     <div class="qa-tt"><b>绿建智汇 · 智能问答</b><span id="qaSub">基于《超低能耗建筑政策与技术标准汇编》</span></div>
-    <button class="qa-new" id="qaNew" title="清空对话，开始新话题">新对话</button>
-    <button class="qa-close" id="qaClose" aria-label="关闭">✕</button>
+    <button class="qa-hist-btn" id="qaHist" title="历史会话" aria-label="历史会话"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></button>
+    <button class="qa-new" id="qaNew" title="新建对话（保留历史）" aria-label="新建对话"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button class="qa-close" id="qaClose" title="关闭" aria-label="关闭">✕</button>
   </div>
   <div class="qa-body" id="qaBody"></div>
   <div class="qa-quick" id="qaQuick"></div>
   <div class="qa-input">
     <input type="text" id="qaInput" placeholder="输入问题，如：深圳超低能耗资助标准" />
-    <button id="qaSend">发送</button>
+    <button id="qaSend" title="发送" aria-label="发送">➤</button>
+  </div>
+  <div class="qa-hist-panel" id="qaHistPanel">
+    <div class="qa-hist-head"><b>历史会话</b><span id="qaHistCount"></span></div>
+    <div class="qa-hist-list" id="qaHistList"></div>
+    <div class="qa-hist-foot"><button type="button" id="qaHistNew" title="新建对话" aria-label="新建对话"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button><button type="button" id="qaHistClear" title="清空历史" aria-label="清空历史"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg></button></div>
   </div>
 </div>
 
@@ -1861,6 +1889,7 @@ function qaAttachCopy(d){
   var b = document.createElement('button');
   b.className = 'qa-copy';
   b.type = 'button';
+  b.title = '复制回答';
   b.appendChild(document.createTextNode('复制'));
   b.onclick = function(ev){
     var e = ev || window.event;
@@ -1925,15 +1954,235 @@ function qaAnswer(query){
   return '抱歉，暂未在汇编中找到直接答案。<br>建议：①输入<b>标准编号</b>查询（如 51350、228、5112、0061）；②说\"<b>推荐+领域</b>标准\"（如 推荐零碳标准、深圳节能标准）；③用术语关键词提问（如 零碳航站楼、资助）。<br><a class="qa-ref" href="#page-intro">📍 返回编制说明</a>';
 }
 
-/* ================= AI 大模型问答 ================= */
+/* ================= AI 大模型问答：多会话历史 ================= */
 var qaHistory = [], qaLog = [], qaBusy = false, qaReqId = 0, qaXhr = null, qaTitleCache = {};
 var QA_NOTE = '<span class="qa-note">内容由 AI 大模型依据汇编原文生成，政策与标准以正式发布文本为准</span>';
-var QA_STORE_KEY = 'qaChat_v1';
-function qaStoreLoad(){
-  try{ var s = localStorage.getItem(QA_STORE_KEY), a = s ? JSON.parse(s) : []; return (a && a.length) ? a : []; }catch(e){ return []; }
+var QA_SESS_KEY = 'qaSessions_v1', QA_ACTIVE_KEY = 'qaActive_v1', QA_OLD_KEY = 'qaChat_v1';
+var QA_SESS_MAX = 30, QA_MSG_MAX = 30;
+var qaSessions = [], qaCur = null, qaHistOpen = false;
+
+function qaNewSession(){ return { id: 's' + Date.now() + Math.floor(Math.random() * 1000), title: '', ts: Date.now(), msgs: [] }; }
+function qaTitleOf(msgs){
+  for(var i=0; i<msgs.length; i++){
+    if(msgs[i].r === 'u'){
+      var t = qaTrim(String(msgs[i].t || '')).replace(/\s+/g, ' ');
+      return t.length > 24 ? t.substring(0, 24) + '…' : t;
+    }
+  }
+  return '';
 }
-function qaStoreSave(){ try{ localStorage.setItem(QA_STORE_KEY, JSON.stringify(qaLog.slice(-30))); }catch(e){} }
-function qaStoreClear(){ try{ localStorage.removeItem(QA_STORE_KEY); }catch(e){} }
+function qaTime(ts){
+  var d = new Date(ts || Date.now()), p = function(n){ return n < 10 ? '0' + n : '' + n; };
+  return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+function qaFindSession(id){
+  for(var i=0; i<qaSessions.length; i++){ if(qaSessions[i].id === id){ return qaSessions[i]; } }
+  return null;
+}
+function qaSessionsLoad(){
+  var arr = [], raw = null, migrated = false;
+  try{ raw = localStorage.getItem(QA_SESS_KEY); }catch(e){}
+  if(raw !== null){
+    try{ var p = JSON.parse(raw); if(p && p.length){ arr = p; } }catch(e){}
+  }else{
+    /* 迁移旧版单会话记录 */
+    try{
+      var old = localStorage.getItem(QA_OLD_KEY), o = old ? JSON.parse(old) : null;
+      if(o && o.length){
+        var s = qaNewSession();
+        s.msgs = o.slice(-QA_MSG_MAX); s.title = qaTitleOf(s.msgs); s.ts = Date.now();
+        arr = [s]; migrated = true;
+      }
+    }catch(e){}
+  }
+  var clean = [];
+  for(var i=0; i<arr.length; i++){
+    var s2 = arr[i];
+    if(!s2 || !s2.msgs || !s2.msgs.length){ continue; }
+    s2.id = s2.id || qaNewSession().id;
+    s2.title = s2.title || qaTitleOf(s2.msgs) || '未命名会话';
+    s2.ts = s2.ts || Date.now();
+    s2.msgs = s2.msgs.slice(-QA_MSG_MAX);
+    clean.push(s2);
+  }
+  clean.sort(function(a,b){ return b.ts - a.ts; });
+  qaSessions = clean.slice(0, QA_SESS_MAX);
+  var active = null;
+  try{ active = localStorage.getItem(QA_ACTIVE_KEY); }catch(e){}
+  var found = null;
+  for(var j=0; j<qaSessions.length; j++){ if(qaSessions[j].id === active){ found = qaSessions[j]; break; } }
+  qaCur = found || qaSessions[0] || qaNewSession();
+  qaLog = qaCur.msgs;
+  if(migrated){ qaSessionsSave(); }
+}
+function qaPersist(){
+  try{
+    localStorage.setItem(QA_SESS_KEY, JSON.stringify(qaSessions));
+    localStorage.setItem(QA_ACTIVE_KEY, qaCur ? qaCur.id : '');
+  }catch(e){
+    try{
+      qaSessions = qaSessions.slice(0, Math.max(1, Math.floor(qaSessions.length / 2)));
+      localStorage.setItem(QA_SESS_KEY, JSON.stringify(qaSessions));
+    }catch(e2){}
+  }
+}
+function qaSessionsSave(){
+  if(!qaCur){ return; }
+  qaCur.msgs = qaLog.slice(-QA_MSG_MAX);
+  qaLog = qaCur.msgs;
+  qaCur.ts = Date.now();
+  if(!qaCur.title){ qaCur.title = qaTitleOf(qaLog) || '新对话'; }
+  var idx = -1;
+  for(var i=0; i<qaSessions.length; i++){ if(qaSessions[i].id === qaCur.id){ idx = i; break; } }
+  if(idx >= 0){ qaSessions[idx] = qaCur; } else { qaSessions.unshift(qaCur); }
+  qaSessions.sort(function(a,b){ return b.ts - a.ts; });
+  if(qaSessions.length > QA_SESS_MAX){ qaSessions.length = QA_SESS_MAX; }
+  qaPersist();
+}
+function qaAbort(){
+  qaReqId++;
+  if(qaXhr){ try{ qaXhr.abort(); }catch(e){} qaXhr = null; }
+  qaSetBusy(false);
+}
+function qaStopEv(ev){
+  var e = ev || window.event;
+  if(e && e.stopPropagation){ e.stopPropagation(); } else if(window.event){ window.event.cancelBubble = true; }
+}
+function qaRenderMsgs(){
+  qaBody.innerHTML = '';
+  for(var i=0; i<qaLog.length; i++){
+    if(qaLog[i].r === 'u'){ qaAddUser(qaLog[i].t); }
+    else { qaAddBot(qaLog[i].h ? qaLog[i].t : qaMd(qaLog[i].t)); }
+  }
+  qaQuick.style.display = qaLog.length ? 'none' : '';
+  qaScroll();
+}
+function qaSessionNew(silent){
+  qaAbort();
+  if(qaCur && qaLog.length){ qaSessionsSave(); }
+  qaCur = qaNewSession();
+  qaLog = qaCur.msgs;
+  qaHistory = [];
+  qaBody.innerHTML = '';
+  qaGreeted = false;
+  qaHistToggle(false);
+  try{ localStorage.setItem(QA_ACTIVE_KEY, qaCur.id); }catch(e){}
+  if(!silent){ qaGreet(); }
+}
+function qaSessionOpen(id){
+  var target = qaFindSession(id);
+  if(!target){ return; }
+  if(qaCur && qaCur.id === id){ qaHistToggle(false); return; }
+  qaAbort();
+  if(qaCur && qaLog.length){ qaSessionsSave(); }
+  qaCur = target;
+  qaLog = target.msgs;
+  qaHistory = [];
+  for(var i=0; i<qaLog.length; i++){ qaHistory.push({ role: qaLog[i].r === 'u' ? 'user' : 'assistant', content: qaLog[i].t }); }
+  if(qaHistory.length > 8){ qaHistory = qaHistory.slice(-8); }
+  qaGreeted = true;
+  qaRenderMsgs();
+  try{ localStorage.setItem(QA_ACTIVE_KEY, qaCur.id); }catch(e){}
+  qaHistToggle(false);
+  qaInput.focus();
+}
+function qaHistToggle(force){
+  var panel = document.getElementById('qaHistPanel');
+  if(!panel){ return; }
+  var open = typeof force === 'boolean' ? force : panel.className.indexOf('open') < 0;
+  panel.className = open ? 'qa-hist-panel open' : 'qa-hist-panel';
+  qaHistOpen = open;
+  if(open){ qaHistRender(); }
+}
+function qaHistRender(){
+  var list = document.getElementById('qaHistList'), cnt = document.getElementById('qaHistCount');
+  if(!list){ return; }
+  list.innerHTML = '';
+  cnt.innerHTML = qaSessions.length ? (qaSessions.length + ' 个会话') : '';
+  if(!qaSessions.length){
+    var e = document.createElement('div');
+    e.className = 'qa-hist-empty';
+    e.innerHTML = '还没有历史会话。<br>发起提问后，对话会自动保存在这里。';
+    list.appendChild(e);
+    return;
+  }
+  for(var i=0; i<qaSessions.length; i++){
+    (function(s){
+      var box = document.createElement('div');
+      box.className = 'qa-hist-item' + (qaCur && qaCur.id === s.id ? ' on' : '');
+      var title = document.createElement('div');
+      title.className = 'qa-hist-t';
+      title.appendChild(document.createTextNode(s.title || '未命名会话'));
+      title.onclick = function(){ qaSessionOpen(s.id); };
+      var meta = document.createElement('div');
+      meta.className = 'qa-hist-m';
+      var asks = 0;
+      for(var k=0; k<s.msgs.length; k++){ if(s.msgs[k].r === 'u'){ asks++; } }
+      var info = document.createElement('span');
+      info.appendChild(document.createTextNode(qaTime(s.ts) + ' · ' + asks + ' 问' + (qaCur && qaCur.id === s.id ? ' · 当前' : '')));
+      meta.appendChild(info);
+      var ops = document.createElement('span'); ops.className = 'qa-hist-ops';
+      var rb = document.createElement('button'); rb.type = 'button'; rb.title = '重命名';
+      rb.innerHTML = "<svg viewBox='0 0 24 24' width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 20h4L20 8l-4-4L4 16v4zM14 6l4 4'/></svg>";
+      rb.onclick = function(ev){ qaStopEv(ev); qaHistRename(s.id, title); };
+      var db = document.createElement('button'); db.type = 'button'; db.title = '删除';
+      db.innerHTML = "<svg viewBox='0 0 24 24' width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6'/></svg>";
+      db.onclick = function(ev){ qaStopEv(ev); qaHistDelete(s.id); };
+      ops.appendChild(rb); ops.appendChild(db); meta.appendChild(ops);
+      box.appendChild(title); box.appendChild(meta); list.appendChild(box);
+    })(qaSessions[i]);
+  }
+}
+function qaHistRename(id, node){
+  var s = qaFindSession(id);
+  if(!s || !node || !node.parentNode){ return; }
+  var input = document.createElement('input');
+  input.className = 'qa-hist-edit'; input.type = 'text'; input.value = s.title || '';
+  node.parentNode.replaceChild(input, node);
+  input.focus(); input.select();
+  var done = false;
+  function finish(save){
+    if(done){ return; }
+    done = true;
+    var v = save ? qaTrim(input.value) : '';
+    if(v){ s.title = v.substring(0, 40); s.ts = Date.now(); qaPersist(); }
+    qaHistRender();
+  }
+  input.onkeydown = function(e){
+    e = e || window.event;
+    if(e.keyCode === 13){ finish(true); } else if(e.keyCode === 27){ finish(false); }
+  };
+  input.onblur = function(){ finish(true); };
+}
+function qaHistDelete(id){
+  var idx = -1;
+  for(var i=0; i<qaSessions.length; i++){ if(qaSessions[i].id === id){ idx = i; break; } }
+  if(idx < 0){ return; }
+  if(!window.confirm('确定删除这个历史会话？删除后不可恢复。')){ return; }
+  if(qaCur && qaCur.id === id){
+    qaAbort();
+    qaSessions.splice(idx, 1);
+    qaCur = qaNewSession(); qaLog = qaCur.msgs; qaHistory = [];
+    qaBody.innerHTML = ''; qaGreeted = false;
+    qaPersist();
+    qaGreet();
+  }else{
+    qaSessions.splice(idx, 1);
+    qaPersist();
+  }
+  qaHistRender();
+}
+function qaHistClear(){
+  if(!qaSessions.length){ return; }
+  if(!window.confirm('确定清空全部历史会话？当前对话也会重新开始。')){ return; }
+  qaAbort();
+  qaSessions = [];
+  qaCur = qaNewSession(); qaLog = qaCur.msgs; qaHistory = [];
+  qaBody.innerHTML = ''; qaGreeted = false;
+  qaPersist();
+  try{ localStorage.removeItem(QA_OLD_KEY); }catch(e){}
+  qaGreet(); qaHistRender();
+}
 function qaErrZh(err){
   var s = String(err);
   if(s.indexOf('401') > -1){ return '接口密钥失效，请联系管理员'; }
@@ -2030,7 +2279,12 @@ function qaAskAI(messages, onDelta, onDone, onFail){
   return xhr;
 }
 
-function qaSetBusy(b){ qaBusy = b; qaSend.disabled = false; qaSend.innerHTML = b ? '停止' : '发送'; }
+function qaSetBusy(b){
+  qaBusy = b;
+  qaSend.disabled = false;
+  qaSend.innerHTML = b ? '■' : '➤';
+  qaSend.title = b ? '停止生成' : '发送';
+}
 function qaTyping(txt){
   var t = document.createElement('div');
   t.className = 'qa-typing'; t.innerHTML = txt;
@@ -2044,8 +2298,15 @@ function qaSendMsg(){
   qaInput.value = '';
   qaAddUser(v);
   if(!QA_API){
-    var t0 = qaTyping('正在检索汇编');
-    setTimeout(function(){ qaRemove(t0); qaAddBot(qaAnswer(v.toLowerCase())); }, 420);
+    var t0 = qaTyping('正在检索汇编'), sid = qaCur.id;
+    setTimeout(function(){
+      if(!qaCur || qaCur.id !== sid){ return; }
+      qaRemove(t0);
+      var ans = qaAnswer(v.toLowerCase());
+      qaAddBot(ans);
+      qaLog.push({ r: 'u', t: v }, { r: 'a', t: ans, h: 1 });
+      qaSessionsSave();
+    }, 420);
     return;
   }
   var id = ++qaReqId, typing = qaTyping('正在思考'), bubble = null;
@@ -2066,19 +2327,19 @@ function qaSendMsg(){
     qaHistory.push({ role: 'user', content: v }, { role: 'assistant', content: text });
     if(qaHistory.length > 8){ qaHistory = qaHistory.slice(-8); }
     qaLog.push({ r: 'u', t: v }, { r: 'a', t: text });
-    qaStoreSave();
+    qaSessionsSave();
     qaScroll(); qaSetBusy(false);
   }, function(err, partial){
     if(id !== qaReqId){ return; }
     qaRemove(typing);
     if(err === 'STOPPED'){
       if(bubble && partial){
-        bubble.innerHTML = qaMd(partial) + '<span class="qa-note">⏹ 已停止生成</span>';
+        bubble.innerHTML = qaMd(partial) + '<span class="qa-note">■ 已停止生成</span>';
         qaAttachCopy(bubble);
         qaHistory.push({ role: 'user', content: v }, { role: 'assistant', content: partial });
         if(qaHistory.length > 8){ qaHistory = qaHistory.slice(-8); }
         qaLog.push({ r: 'u', t: v }, { r: 'a', t: partial });
-        qaStoreSave();
+        qaSessionsSave();
       }else{
         qaRemove(bubble);
       }
@@ -2086,36 +2347,32 @@ function qaSendMsg(){
       return;
     }
     if(bubble && partial){
-      bubble.innerHTML = qaMd(partial) + '<span class="qa-note">⚠ 回答中断（' + qaEsc(qaErrZh(err)) + '），可点击“新对话”后重试</span>';
+      bubble.innerHTML = qaMd(partial) + '<span class="qa-note">⚠ 回答中断（' + qaEsc(qaErrZh(err)) + '），可重试</span>';
       qaAttachCopy(bubble);
+      qaLog.push({ r: 'u', t: v }, { r: 'a', t: partial });
     }else{
       qaRemove(bubble);
-      qaAddBot(qaAnswer(v.toLowerCase()) + '<span class="qa-note">⚠ 大模型暂不可用（' + qaEsc(qaErrZh(err)) + '），以上为汇编本地检索结果</span>');
+      var fb = qaAnswer(v.toLowerCase()) + '<span class="qa-note">⚠ 大模型暂不可用（' + qaEsc(qaErrZh(err)) + '），以上为汇编本地检索结果</span>';
+      qaAddBot(fb);
+      qaLog.push({ r: 'u', t: v }, { r: 'a', t: fb, h: 1 });
     }
+    qaSessionsSave();
     qaScroll(); qaSetBusy(false);
   });
 }
 function qaGreet(){
   if(qaGreeted){ return; }
   qaGreeted = true;
+  if(qaLog.length){
+    var i;
+    qaHistory = [];
+    for(i = 0; i < qaLog.length; i++){ qaHistory.push({ role: qaLog[i].r === 'u' ? 'user' : 'assistant', content: qaLog[i].t }); }
+    if(qaHistory.length > 8){ qaHistory = qaHistory.slice(-8); }
+    qaRenderMsgs();
+    return;
+  }
   var seeds;
   if(QA_API){
-    var saved = qaStoreLoad();
-    if(saved.length){
-      var i;
-      qaLog = saved.slice();
-      qaHistory = [];
-      for(i = 0; i < saved.length; i++){
-        if(saved[i].r === 'u'){ qaAddUser(saved[i].t); }
-        else { qaAddBot(qaMd(saved[i].t)); }
-        qaHistory.push({ role: saved[i].r === 'u' ? 'user' : 'assistant', content: saved[i].t });
-      }
-      if(qaHistory.length > 8){ qaHistory = qaHistory.slice(-8); }
-      qaQuick.innerHTML = '';
-      qaQuick.style.display = 'none';
-      qaScroll();
-      return;
-    }
     qaAddBot('您好！我是<b>绿建智汇</b>平台的智能问答助手，已接入 <b>AI 大模型</b>并通读《超低能耗建筑政策与技术标准汇编》全文。<br>您可以直接用自然语言提问，支持<b>连续追问</b>，回答会标注<b>出处章节</b>，点击即可跳转原文。');
     seeds = ['超低能耗、近零能耗、零能耗建筑有什么区别？', '深圳机场T3航站楼做近零碳改造应参考哪些标准？', '深圳超低能耗项目能拿到多少资助？', '零碳航站楼的分级指标是什么？', '广东和北方的超低能耗技术路线有何不同？', '1+N政策体系是什么？'];
   }else{
@@ -2131,6 +2388,7 @@ function qaGreet(){
     qaQuick.appendChild(b);
   }
 }
+qaSessionsLoad();  /* 恢复上次会话，并将旧版记录迁移为历史会话 */
 if(QA_API){
   document.getElementById('qaSub').innerHTML = 'AI 大模型 · 基于汇编全文作答';
   qaInput.placeholder = '直接提问，如：深圳机场改造应参考哪些标准？';
@@ -2169,22 +2427,16 @@ if(QA_API){
   bind(document.getElementById('qaEdgeT'), 'top');
   bind(document.getElementById('qaEdgeL'), 'left');
 })();
-document.getElementById('qaNew').onclick = function(){
-  qaReqId++;
-  if(qaXhr){ try{ qaXhr.abort(); }catch(e){} qaXhr = null; }
-  qaHistory = [];
-  qaLog = [];
-  qaStoreClear();
-  qaSetBusy(false);
-  qaBody.innerHTML = '';
-  qaGreeted = false;
-  qaGreet();
-};
+document.getElementById('qaNew').onclick = function(){ qaSessionNew(); };
+document.getElementById('qaHist').onclick = function(){ qaHistToggle(); };
+document.getElementById('qaHistNew').onclick = function(){ qaSessionNew(); };
+document.getElementById('qaHistClear').onclick = function(){ qaHistClear(); };
 qaBtn.onclick = function(){
   var opened = qaPanel.className.indexOf('open') > -1;
+  qaHistToggle(false);
   if(opened){ qaPanel.className = 'qa-panel'; } else { qaPanel.className = 'qa-panel open'; qaGreet(); qaInput.focus(); }
 };
-qaClose.onclick = function(){ qaPanel.className = 'qa-panel'; };
+qaClose.onclick = function(){ qaPanel.className = 'qa-panel'; qaHistToggle(false); };
 qaSend.onclick = function(){
   if(qaBusy){
     if(qaXhr){ try{ qaXhr.abort(); }catch(e){} }
