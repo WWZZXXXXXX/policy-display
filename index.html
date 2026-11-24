@@ -25,12 +25,11 @@
 
   .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:linear-gradient(180deg,#0b2545 0%,#123a63 100%);color:#cfe0f5;display:flex;flex-direction:column;z-index:50}
   .sidebar .brand{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.12)}
-  .sidebar .brand .brand-top{display:flex;align-items:center;gap:10px}
-  .sidebar .brand .brand-mark{width:34px;height:34px;flex:none;border-radius:9px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-  .sidebar .brand .brand-top .brand-tag{margin-bottom:0}
-  .sidebar .brand .brand-tag{display:inline-block;font-size:12px;font-weight:bold;color:#ffd43b;border:1px solid rgba(255,212,59,.55);border-radius:6px;padding:2px 10px;letter-spacing:2px;margin-bottom:8px}
-  .sidebar .brand h1{font-size:17px;color:#fff;line-height:1.5;letter-spacing:.5px}
-  .sidebar .brand p{font-size:11.5px;color:#8fb3d9;margin-top:6px}
+  .sidebar .brand .brand-top{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .sidebar .brand .brand-mark{width:36px;height:36px;flex:none;border-radius:9px}
+  .sidebar .brand .brand-name{font-size:16px;font-weight:600;color:#ffd43b;letter-spacing:2px}
+  .sidebar .brand h1{font-size:15px;color:#fff;line-height:1.45;letter-spacing:.3px}
+  .sidebar .brand p{font-size:11px;color:#8fb3d9;margin-top:4px;line-height:1.5}
   .nav{flex:1;overflow-y:auto;padding:12px 10px}
   .nav .nav-title{font-size:11px;color:#7d9fc9;padding:10px 12px 6px;letter-spacing:2px}
   .nav a{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:2px 0;border-radius:8px;color:#cfe0f5;text-decoration:none;font-size:14px;cursor:pointer;transition:.18s}
@@ -172,7 +171,7 @@
   .qa-edge-l{left:0;top:0;width:6px;height:100%;cursor:ew-resize}
   .qa-panel{width:min(400px,calc(100vw - 24px));height:min(620px,76vh)}
   .qa-panel.open{display:flex}
-  .qa-head{background:linear-gradient(135deg,#0b2545,#0e5fd8);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:10px}
+  .qa-head{background:linear-gradient(135deg,#0b2545,#0e5fd8);color:#fff;padding:14px 14px;display:flex;align-items:center;gap:7px}
   .qa-head .qa-ico{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:18px}
   .qa-head .qa-tt{flex:1}
   .qa-head .qa-tt b{font-size:14.5px;display:block}
@@ -195,8 +194,8 @@
   .qa-input button{border:none;background:var(--c-primary);color:#fff;border-radius:10px;padding:0 14px;font-size:16px;line-height:1;cursor:pointer;font-family:inherit}
   .qa-input button:hover{background:var(--c-primary-dark)}
   .qa-input button:disabled{background:#9db5d6;cursor:not-allowed}
-  .qa-new{border:none;background:rgba(255,255,255,.14);color:#fff;height:28px;border-radius:8px;cursor:pointer;font-size:14px;padding:0 8px;font-family:inherit;display:inline-flex;align-items:center;justify-content:center}
-  .qa-new:hover,.qa-close:hover{background:rgba(255,255,255,.26)}
+  .qa-new{border:none;background:transparent;color:#fff;height:28px;border-radius:8px;cursor:pointer;font-size:14px;padding:0 6px;font-family:inherit;display:inline-flex;align-items:center;justify-content:center}
+  .qa-new:hover,.qa-close:hover,.qa-hist-btn:hover{background:rgba(255,255,255,.22)}
   .qa-msg.bot .qa-li{display:block;padding-left:1.1em;text-indent:-1.1em}
   .qa-msg.bot .qa-h{display:block;margin-top:4px;color:var(--c-primary-dark)}
   .qa-msg.bot code{background:#eef3fa;border-radius:4px;padding:0 4px;font-size:12px}
@@ -209,8 +208,8 @@
   .qa-copy:hover{color:var(--c-primary);border-color:var(--c-primary)}
   .qa-msg.bot .qa-copy.qa-copying{color:var(--c-primary);border-color:var(--c-primary)}
   /* 历史会话 */
-  .qa-hist-btn{border:none;background:rgba(255,255,255,.14);color:#fff;height:28px;border-radius:8px;cursor:pointer;font-size:14px;padding:0 8px;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center}
-  .qa-hist-btn:hover{background:rgba(255,255,255,.26)}
+  .qa-hist-btn{border:none;background:transparent;color:#fff;height:28px;border-radius:8px;cursor:pointer;font-size:14px;padding:0 6px;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center}
+  .qa-hist-btn:hover{background:rgba(255,255,255,.22)}
   .qa-hist-panel{display:none;position:absolute;left:0;right:0;top:62px;bottom:0;z-index:8;background:#f6f9fd;flex-direction:column;border-top:1px solid #dbe5f2}
   .qa-hist-panel.open{display:flex}
   .qa-hist-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px;font-size:13px;color:#334e6b}
@@ -252,7 +251,7 @@
   <div class="brand">
     <div class="brand-top">
       <img class="brand-mark" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20role%3D%22img%22%20aria-label%3D%22%E7%BB%BF%E5%BB%BA%E6%99%BA%E6%B1%87%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230e5fd8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230d9488%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%3C%2Fdefs%3E%0A%20%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22url%28%23g%29%22%2F%3E%0A%20%20%3Cg%20fill%3D%22%23ffffff%22%3E%0A%20%20%20%20%3Crect%20x%3D%2214%22%20y%3D%2230%22%20width%3D%2211%22%20height%3D%2220%22%20rx%3D%221.5%22%20opacity%3D%220.88%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2227%22%20y%3D%2221%22%20width%3D%2214%22%20height%3D%2229%22%20rx%3D%221.5%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2243%22%20y%3D%2233%22%20width%3D%229%22%20height%3D%2217%22%20rx%3D%221.5%22%20opacity%3D%220.88%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%20%20%3Cpath%20d%3D%22M34%2021c0-5%203-10%2010-11%200%207-3%2011-10%2011z%22%20fill%3D%22%23a9e34b%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M35%2020c2-3%205-6%208-8%22%20fill%3D%22none%22%20stroke%3D%22%232f9e44%22%20stroke-width%3D%221%22%20stroke-linecap%3D%22round%22%2F%3E%0A%20%20%3Cg%20fill%3D%22%230e5fd8%22%20opacity%3D%220.5%22%3E%0A%20%20%20%20%3Crect%20x%3D%2217%22%20y%3D%2234%22%20width%3D%222.5%22%20height%3D%222.5%22%20rx%3D%220.5%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2217%22%20y%3D%2240%22%20width%3D%222.5%22%20height%3D%222.5%22%20rx%3D%220.5%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2230%22%20y%3D%2226%22%20width%3D%223%22%20height%3D%223%22%20rx%3D%220.5%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%2226%22%20width%3D%223%22%20height%3D%223%22%20rx%3D%220.5%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2230%22%20y%3D%2233%22%20width%3D%223%22%20height%3D%223%22%20rx%3D%220.5%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%2233%22%20width%3D%223%22%20height%3D%223%22%20rx%3D%220.5%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2230%22%20y%3D%2240%22%20width%3D%223%22%20height%3D%223%22%20rx%3D%220.5%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%2240%22%20width%3D%223%22%20height%3D%223%22%20rx%3D%220.5%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2246%22%20y%3D%2237%22%20width%3D%222.5%22%20height%3D%222.5%22%20rx%3D%220.5%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2246%22%20y%3D%2243%22%20width%3D%222.5%22%20height%3D%222.5%22%20rx%3D%220.5%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%20%20%3Cg%20fill%3D%22%23ffffff%22%20opacity%3D%220.9%22%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2224%22%20cy%3D%2255%22%20r%3D%221.6%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2232%22%20cy%3D%2255%22%20r%3D%221.6%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2240%22%20cy%3D%2255%22%20r%3D%221.6%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E%0A" alt="绿建智汇图标" />
-      <span class="brand-tag">绿建智汇</span>
+      <span class="brand-name">绿建智汇</span>
     </div>
     <h1>超低能耗建筑政策与技术标准汇编</h1>
     <p>深圳机场近零能耗建筑建设研究项目成果 · 交互展示</p>
@@ -1572,7 +1571,7 @@ try{
   <div class="qa-edge qa-edge-t" id="qaEdgeT" title="上下拖拽调整高度"></div>
   <div class="qa-edge qa-edge-l" id="qaEdgeL" title="左右拖拽调整宽度"></div>
   <div class="qa-head">
-    <div class="qa-ico"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10l5-3v13"/><path d="M11 20V6l6 4v10"/><path d="M19 20v-7"/><path d="M6 13h1M6 17h1M14 13h1M14 17h1"/><path d="M14 6c0-2 2-4 5-4 0 3-2 5-5 4z" fill="#a9e34b" stroke="none"/></svg></div>
+    <div class="qa-ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3.5"/><path d="M12 8V5"/><circle cx="12" cy="3.4" r="1.1" fill="#a9e34b" stroke="none"/><circle cx="9" cy="13" r="1.15" fill="#fff" stroke="none"/><circle cx="15" cy="13" r="1.15" fill="#fff" stroke="none"/><path d="M9.5 16.5h5"/><path d="M2 12h2M20 12h2"/></svg></div>
     <div class="qa-tt"><b>绿建智汇 · 智能问答</b><span id="qaSub">基于《超低能耗建筑政策与技术标准汇编》</span></div>
     <button class="qa-hist-btn" id="qaHist" title="历史会话" aria-label="历史会话"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></button>
     <button class="qa-new" id="qaNew" title="新建对话（保留历史）" aria-label="新建对话"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
